@@ -1,0 +1,7 @@
+{
+  "bluemapminimap.screen.config.config": "Config",
+  "bluemapminimap.screen.config.general.general": "General",
+  "bluemapminimap.screen.config.dimension.world": "Dimension",
+  "bluemapminimap.screen.config.dimension.mapLocation": "Map location",
+  "bluemapminimap.screen.config.dimension.mapLocation.tooltip": "Set a map to show in minimap in this dimension"
+}

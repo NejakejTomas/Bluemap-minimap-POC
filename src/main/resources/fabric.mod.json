@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "bluemapminimap",
+  "version": "${version}",
+
+  "name": "Bluemap minimap",
+  "description": "TODO",
+  "authors": [
+    "NejakejTomas"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/bluemapminimap/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "cz.nejakejtomas.bluemapminimap.ModKt::init"
+    ],
+    "modmenu": [
+      "cz.nejakejtomas.bluemapminimap.screen.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "modid.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "fabric": "*",
+    "fabric-language-kotlin": "*",
+    "minecraft": "1.20.x"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "cz.nejakejtomas.bluemapminimap.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ConnectionMixin"
+  ],
+  "client": [
+    "ClientPacketListenerMixin",
+    "ConnectionMixin",
+    "MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
