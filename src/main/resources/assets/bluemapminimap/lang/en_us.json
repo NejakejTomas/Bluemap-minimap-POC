@@ -1,7 +1,12 @@
 {
   "bluemapminimap.screen.config.config": "Config",
   "bluemapminimap.screen.config.general.general": "General",
-  "bluemapminimap.screen.config.dimension.world": "Dimension",
-  "bluemapminimap.screen.config.dimension.mapLocation": "Map location",
-  "bluemapminimap.screen.config.dimension.mapLocation.tooltip": "Set a map to show in minimap in this dimension"
+  "bluemapminimap.screen.config.dimension.dimension": "Dimension",
+  "bluemapminimap.screen.config.dimension.mapName": "Map name",
+  "bluemapminimap.screen.config.dimension.mapName.tooltip": "Set a map to show in minimap in this dimension",
+  "bluemapminimap.screen.config.dimension.mapName.invalid": "Invalid map name",
+  "bluemapminimap.screen.config.server.server": "Server",
+  "bluemapminimap.screen.config.server.mapUrl": "Map url",
+  "bluemapminimap.screen.config.server.mapUrl.tooltip": "Bluemap map url (ideally copy paste it from a browser)",
+  "bluemapminimap.screen.config.server.mapUrl.malformed": "Entered URL is malformed"
 }

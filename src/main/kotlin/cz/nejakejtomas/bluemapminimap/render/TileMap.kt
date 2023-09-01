@@ -68,8 +68,7 @@ class TileMap(
 
         val texture = withContext(Dispatchers.IO) {
             val byteStream = ByteArrayOutputStream()
-            // +1 to fix MSAA?
-            ImageIO.write(tile.getSubimage(0, 0, width + 1, height + 1), "png", byteStream)
+            ImageIO.write(tile.getSubimage(0, 0, width, height), "png", byteStream)
             val bytes = byteStream.toByteArray()
             val data = BufferUtils.createByteBuffer(bytes.size).put(bytes)
             data.flip()

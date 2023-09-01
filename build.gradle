@@ -17,10 +17,10 @@ java {
 
 repositories {
     // Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+    // You should only use this when depending on other mods because
+    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
+    // for more information about repositories.
     maven {
         name = 'Ladysnake Mods'
         url = 'https://maven.ladysnake.org/releases'
@@ -31,7 +31,7 @@ repositories {
         }
     }
     maven {
-        name='Jitpack'
+        name = 'Jitpack'
         url 'https://jitpack.io'
     }
     maven { url 'https://maven.shedaniel.me/' }
@@ -49,10 +49,10 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
-    shadow implementation('org.jetbrains.exposed:exposed-core:0.42.1')
-    shadow implementation('org.jetbrains.exposed:exposed-jdbc:0.42.1')
+    include implementation('org.jetbrains.exposed:exposed-core:0.42.1')
+    include implementation('org.jetbrains.exposed:exposed-jdbc:0.42.1')
 
-    shadow implementation('org.xerial:sqlite-jdbc:3.42.0.0')
+    include implementation('org.xerial:sqlite-jdbc:3.42.0.0')
 
     shadow implementation('io.insert-koin:koin-core:3.4.2')
 
@@ -69,12 +69,25 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
     modApi "com.terraformersmc:modmenu:7.1.0"
+
+    include implementation('com.github.seancfoley:ipaddress:5.4.0')
 }
 
 shadowJar {
     configurations = [project.configurations.shadow]
     archiveClassifier = 'shadow'
     exclude("META-INF")
+
+    var prefix = "cz.nejakejtomas.bluemapminimap"
+
+    [
+            "io.insert-koin",
+            "org.jetbrains.kotlinx",
+            "io.ktor",
+            "com.github.seancfoley"
+    ].forEach { pack ->
+        relocate(pack, "$prefix.$pack")
+    }
 }
 
 prepareRemapJar {
@@ -112,8 +125,8 @@ java {
 }
 
 jar {
-    from ("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}"}
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
     }
 }
 

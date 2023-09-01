@@ -17,7 +17,7 @@ class WorldDao(private val world: World, private val database: Database, private
         return@transaction result[WorldTable.mapName]
     }
 
-    fun setMapName(mapName: String) = database.transaction  {
+    fun setMapName(mapName: String?) = database.transaction {
         val id = serverDao.getId()
 
         WorldTable.upsert(WorldTable.server, WorldTable.dimension) {

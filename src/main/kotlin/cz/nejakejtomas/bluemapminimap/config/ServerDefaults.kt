@@ -1,6 +1,7 @@
 package cz.nejakejtomas.bluemapminimap.config
 
 import cz.nejakejtomas.bluemapminimap.Server
+import cz.nejakejtomas.bluemapminimap.urlFromMinecraft
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
@@ -9,7 +10,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 
 class ServerDefaults(private val server: Server) {
-
     private val client = HttpClient(CIO) {
         install(HttpCache)
         install(HttpTimeout) {
@@ -17,11 +17,19 @@ class ServerDefaults(private val server: Server) {
         }
     }
 
+    private var validUrl: Url? = null
     suspend fun getMapUrl(): Url? {
+        val current = validUrl
+        if (current != null) return current
+
         try {
             transformations.forEach {
-                // Minecraft server won't have schema, so we have to add it - doesn't really matter which one
-                return tryUrl(it(Url("http://${server.url}"))) ?: return@forEach
+                val url = tryUrl(it(urlFromMinecraft(server.url) ?: return null))
+
+                if (url != null) {
+                    validUrl = url
+                    return url
+                }
             }
         } catch (_: Exception) {
         }

@@ -16,7 +16,7 @@ class ServerDao(private val server: Server, private val database: Database) {
         return@transaction result[ServerTable.mapUrl]
     }
 
-    fun setMapUrl(mapUrl: String) = database.transaction {
+    fun setMapUrl(mapUrl: String?) = database.transaction {
         val result = ServerTable.select { ServerTable.serverUrl eq server.url }
             .firstOrNull()
 

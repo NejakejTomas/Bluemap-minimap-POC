@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ServerConfig(private val serverDao: ServerDao, private val serverDefaults: ServerDefaults) {
-    fun getMapUrl(): Url? {
+    fun getSavedMapUrl(): Url? {
         try {
             return URLBuilder(serverDao.getMapUrl() ?: return null).build()
         } catch (_: Exception) {
@@ -15,10 +15,10 @@ class ServerConfig(private val serverDao: ServerDao, private val serverDefaults:
     }
 
     suspend fun getMapUrlOrDefault(): Url? = withContext(Dispatchers.IO) {
-        return@withContext getMapUrl() ?: serverDefaults.getMapUrl()
+        return@withContext getSavedMapUrl() ?: serverDefaults.getMapUrl()
     }
 
-    fun setMapUrl(url: Url) {
-        serverDao.setMapUrl(url.toString())
+    fun setMapUrl(url: Url?) {
+        serverDao.setMapUrl(url?.toString())
     }
 }
