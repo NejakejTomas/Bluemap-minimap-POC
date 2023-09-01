@@ -23,15 +23,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import net.minecraft.client.Minecraft
 import org.koin.core.context.startKoin
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 object Koin {
     private object Modules {
         fun global() = module {
             single<Minecraft> { Minecraft.getInstance() }
-            single<CoroutineDispatcher>(named("tick")) { TickDispatcher() }
-            single<CoroutineDispatcher>(named("guiRender")) { GuiRenderDispatcher() }
+            single<CoroutineDispatcher>(TickDispatcher) { TickDispatcher() }
+            single<CoroutineDispatcher>(GuiRenderDispatcher) { GuiRenderDispatcher() }
             single<Database> { Database }
             single<ScopeManager>(createdAtStart = true) { ScopeManager() }
             single<ConfigScreen>(createdAtStart = true) { ConfigScreen }
@@ -70,8 +69,8 @@ object Koin {
                     TileMap(
                         get(),
                         get(),
-                        get(qualifier = named("guiRender")),
-                        get(qualifier = named("tick"))
+                        get(GuiRenderDispatcher),
+                        get(TickDispatcher)
                     )
                 }
             }
