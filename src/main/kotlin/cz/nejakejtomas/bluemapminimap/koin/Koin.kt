@@ -40,7 +40,7 @@ object Koin {
         }
 
         fun server() = module {
-            scope(named("server")) {
+            scope(LifecycleQualifier.Server) {
                 scoped<Server> { Server(id) }
                 scoped<ServerClient> { ServerClientImpl() }
                 scoped<ServerDao> { ServerDao(get(), get()) }
@@ -50,7 +50,7 @@ object Koin {
         }
 
         fun world() = module {
-            scope(named("world")) {
+            scope(LifecycleQualifier.World) {
                 scoped<World> { World(id) }
                 scoped<WorldDao> { WorldDao(get(), get(), get()) }
                 scoped<WorldDefaults> { WorldDefaults(get(), get()) }

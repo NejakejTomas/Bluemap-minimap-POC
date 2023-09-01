@@ -1,11 +1,11 @@
 package cz.nejakejtomas.bluemapminimap.koin
 
+import cz.nejakejtomas.bluemapminimap.koin.ScopeManager.ScopeChangeCallback
 import cz.nejakejtomas.bluemapminimap.mc.ClientSetServerCallback
 import cz.nejakejtomas.bluemapminimap.mc.ClientSetWorldCallback
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
 import org.koin.core.component.KoinComponent
-import org.koin.core.qualifier.named
 import org.koin.core.scope.Scope
 
 class ScopeManager : KoinComponent {
@@ -50,7 +50,7 @@ class ScopeManager : KoinComponent {
             null
         } else {
             // Multiplayer
-            getKoin().createScope(serverIp, named("server"))
+            getKoin().createScope(serverIp, LifecycleQualifier.Server)
         }
 
         if (newScope != null) worldScope?.linkTo(newScope)
@@ -66,7 +66,7 @@ class ScopeManager : KoinComponent {
         val newScope = if (worldName == null || server == null) {
             null
         } else {
-            getKoin().createScope(worldName, named("world"))
+            getKoin().createScope(worldName, LifecycleQualifier.World)
         }
 
         server?.let {
