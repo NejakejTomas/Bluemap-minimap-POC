@@ -16,7 +16,7 @@ import javax.imageio.ImageIO
 @Suppress("KotlinConstantConditions")
 class TileMap(
     private val minecraft: Minecraft,
-    private val mapClient: Lazy<MapClient>,
+    private val mapClient: MapClient,
     private val renderDispatcher: CoroutineDispatcher,
     private val tickDispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope
@@ -47,8 +47,8 @@ class TileMap(
         tiles = Array(UNSAFE_TILE_COUNT_X) { Array(UNSAFE_TILE_COUNT_Z) { null } }
 
         coroutineScope.launch(Dispatchers.IO) {
-            val width = mapClient.value.tileWidth() ?: return@launch
-            val height = mapClient.value.tileHeight() ?: return@launch
+            val width = mapClient.tileWidth() ?: return@launch
+            val height = mapClient.tileHeight() ?: return@launch
 
             withContext(renderDispatcher) {
                 _tileWidth = width
@@ -159,7 +159,7 @@ class TileMap(
                 val realZ = tileCenterZ + z
 
                 coroutineScope.launch(Dispatchers.IO) {
-                    val tile = mapClient.value.tileAt(realX, realZ) ?: return@launch
+                    val tile = mapClient.tileAt(realX, realZ) ?: return@launch
                     placeTile(tile, realX, realZ)
                 }
             }

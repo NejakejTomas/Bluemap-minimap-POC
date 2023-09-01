@@ -22,7 +22,6 @@ import cz.nejakejtomas.bluemapminimap.screen.ConfigScreen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.runBlocking
 import net.minecraft.client.Minecraft
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.createdAtStart
@@ -51,7 +50,7 @@ object Koin {
                 scoped<CoroutineScope>(LifecycleQualifier.Server) { CoroutineScope(SupervisorJob()) }
                 scoped<CoroutineScope> { get(LifecycleQualifier.Server) }
                 scoped<Server> { Server(id) }
-                scoped<ServerClient> { ServerClientImpl() }
+                scoped<ServerClient> { ServerClientImpl(get()) }
                 scopedOf(::ServerDao)
                 scopedOf(::ServerDefaults)
                 scopedOf(::ServerConfig)
@@ -67,18 +66,12 @@ object Koin {
                 scopedOf(::WorldDefaults)
                 scopedOf(::WorldConfig)
 
-                scoped<MapClient> {
-                    val config: WorldConfig = get()
-
-                    val name = runBlocking { config.getMapNameOrDefault() }
-
-                    MapClientImpl(name)
-                }
+                scoped<MapClient> { MapClientImpl(get(), get()) }
 
                 scoped<TileMap> {
                     TileMap(
                         get(),
-                        lazy { get<MapClient>() },
+                        get(),
                         get(GuiRenderDispatcher),
                         get(TickDispatcher),
                         get()
