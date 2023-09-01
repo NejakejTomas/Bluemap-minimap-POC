@@ -8,16 +8,11 @@ import me.x150.renderer.util.Rectangle
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import org.joml.Quaternionf
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import java.awt.Color
 import kotlin.math.floor
 import kotlin.math.sqrt
 
-class Minimap : KoinComponent, GuiRenderable {
-    private val minecraft: Minecraft by inject()
-    private val scopeManager: ScopeManager by inject()
-
+class Minimap(private val minecraft: Minecraft, scopeManager: ScopeManager) : GuiRenderable {
     private var _tileMap: TileMap? = null
 
     init {

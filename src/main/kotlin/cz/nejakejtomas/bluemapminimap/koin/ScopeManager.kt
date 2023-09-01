@@ -3,30 +3,47 @@ package cz.nejakejtomas.bluemapminimap.koin
 import cz.nejakejtomas.bluemapminimap.koin.ScopeManager.ScopeChangeCallback
 import cz.nejakejtomas.bluemapminimap.mc.ClientSetServerCallback
 import cz.nejakejtomas.bluemapminimap.mc.ClientSetWorldCallback
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
 import org.koin.core.component.KoinComponent
 import org.koin.core.scope.Scope
+import org.koin.core.scope.ScopeCallback
 
 class ScopeManager : KoinComponent {
     private var worldScope: Scope? = null
     private var serverScope: Scope? = null
 
-    val newWorldScope: Event<ScopeChangeCallback> = EventFactory.createArrayBacked(ScopeChangeCallback::class.java) { listeners: Array<ScopeChangeCallback> ->
-        ScopeChangeCallback { serverData ->
-            for (listener in listeners) {
-                listener.newScope(serverData)
-            }
+    init {
+        ClientSetServerCallback.EVENT.register { serverIp ->
+            onServerChange(serverIp)
+        }
+
+
+        ClientSetWorldCallback.EVENT.register { worldName ->
+            onWorldChange(worldName)
         }
     }
 
-    val newServerScope: Event<ScopeChangeCallback> = EventFactory.createArrayBacked(ScopeChangeCallback::class.java) { listeners: Array<ScopeChangeCallback> ->
-        ScopeChangeCallback { serverData ->
-            for (listener in listeners) {
-                listener.newScope(serverData)
+    val newWorldScope: Event<ScopeChangeCallback> =
+        EventFactory.createArrayBacked(ScopeChangeCallback::class.java) { listeners: Array<ScopeChangeCallback> ->
+            ScopeChangeCallback { serverData ->
+                for (listener in listeners) {
+                    listener.newScope(serverData)
+                }
             }
         }
-    }
+
+    val newServerScope: Event<ScopeChangeCallback> =
+        EventFactory.createArrayBacked(ScopeChangeCallback::class.java) { listeners: Array<ScopeChangeCallback> ->
+            ScopeChangeCallback { serverData ->
+                for (listener in listeners) {
+                    listener.newScope(serverData)
+                }
+            }
+        }
+
     fun configurationChange() {
         val currentWorldName = worldScope?.id
         val currentServerName = serverScope?.id
@@ -50,7 +67,7 @@ class ScopeManager : KoinComponent {
             null
         } else {
             // Multiplayer
-            getKoin().createScope(serverIp, LifecycleQualifier.Server)
+            createScope(serverIp, LifecycleQualifier.Server)
         }
 
         if (newScope != null) worldScope?.linkTo(newScope)
@@ -66,7 +83,7 @@ class ScopeManager : KoinComponent {
         val newScope = if (worldName == null || server == null) {
             null
         } else {
-            getKoin().createScope(worldName, LifecycleQualifier.World)
+            createScope(worldName, LifecycleQualifier.World)
         }
 
         server?.let {
@@ -76,14 +93,15 @@ class ScopeManager : KoinComponent {
         newWorldScope.invoker().newScope(newScope)
     }
 
-    init {
-        ClientSetServerCallback.EVENT.register { serverIp ->
-            onServerChange(serverIp)
-        }
-
-
-        ClientSetWorldCallback.EVENT.register { worldName ->
-            onWorldChange(worldName)
+    companion object : KoinComponent {
+        fun createScope(name: String, lifecycle: LifecycleQualifier): Scope {
+            return getKoin().createScope(name, lifecycle).apply {
+                registerCallback(object : ScopeCallback {
+                    override fun onScopeClose(scope: Scope) {
+                        scope.get<CoroutineScope>(lifecycle).cancel()
+                    }
+                })
+            }
         }
     }
 }

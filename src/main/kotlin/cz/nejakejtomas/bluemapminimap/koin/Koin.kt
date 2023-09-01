@@ -20,47 +20,57 @@ import cz.nejakejtomas.bluemapminimap.render.Minimap
 import cz.nejakejtomas.bluemapminimap.render.TileMap
 import cz.nejakejtomas.bluemapminimap.screen.ConfigScreen
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import net.minecraft.client.Minecraft
 import org.koin.core.context.startKoin
+import org.koin.core.module.dsl.createdAtStart
+import org.koin.core.module.dsl.scopedOf
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.withOptions
 import org.koin.dsl.module
 
 object Koin {
     private object Modules {
         fun global() = module {
             single<Minecraft> { Minecraft.getInstance() }
+            single<CoroutineScope>(LifecycleQualifier.Global) { CoroutineScope(SupervisorJob()) }
+            single<CoroutineScope> { get(LifecycleQualifier.Global) }
             single<CoroutineDispatcher>(TickDispatcher) { TickDispatcher() }
             single<CoroutineDispatcher>(GuiRenderDispatcher) { GuiRenderDispatcher() }
             single<Database> { Database }
-            single<ScopeManager>(createdAtStart = true) { ScopeManager() }
-            single<ConfigScreen>(createdAtStart = true) { ConfigScreen }
+            single<ScopeManager> { ScopeManager() } withOptions { createdAtStart() }
+            singleOf(::ConfigScreen) withOptions { createdAtStart() }
 
-            single<GuiRenderable> { Minimap() }
+            single<GuiRenderable> { Minimap(get(), get()) }
         }
 
         fun server() = module {
             scope(LifecycleQualifier.Server) {
+                scoped<CoroutineScope>(LifecycleQualifier.Server) { CoroutineScope(SupervisorJob()) }
+                scoped<CoroutineScope> { get(LifecycleQualifier.Server) }
                 scoped<Server> { Server(id) }
                 scoped<ServerClient> { ServerClientImpl() }
-                scoped<ServerDao> { ServerDao(get(), get()) }
-                scoped<ServerDefaults> { ServerDefaults(get()) }
-                scoped<ServerConfig> { ServerConfig(get(), get()) }
+                scopedOf(::ServerDao)
+                scopedOf(::ServerDefaults)
+                scopedOf(::ServerConfig)
             }
         }
 
         fun world() = module {
             scope(LifecycleQualifier.World) {
+                scoped<CoroutineScope>(LifecycleQualifier.World) { CoroutineScope(SupervisorJob()) }
+                scoped<CoroutineScope> { get(LifecycleQualifier.World) }
                 scoped<World> { World(id) }
-                scoped<WorldDao> { WorldDao(get(), get(), get()) }
-                scoped<WorldDefaults> { WorldDefaults(get(), get()) }
-                scoped<WorldConfig> { WorldConfig(get(), get()) }
+                scopedOf(::WorldDao)
+                scopedOf(::WorldDefaults)
+                scopedOf(::WorldConfig)
 
                 scoped<MapClient> {
                     val config: WorldConfig = get()
 
-                    val name = runBlocking {
-                        config.getMapNameOrDefault()
-                    }
+                    val name = runBlocking { config.getMapNameOrDefault() }
 
                     MapClientImpl(name)
                 }
@@ -68,9 +78,10 @@ object Koin {
                 scoped<TileMap> {
                     TileMap(
                         get(),
-                        get(),
+                        lazy { get<MapClient>() },
                         get(GuiRenderDispatcher),
-                        get(TickDispatcher)
+                        get(TickDispatcher),
+                        get()
                     )
                 }
             }

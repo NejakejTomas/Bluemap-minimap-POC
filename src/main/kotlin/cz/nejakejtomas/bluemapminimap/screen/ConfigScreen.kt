@@ -4,28 +4,27 @@ import cz.nejakejtomas.bluemapminimap.client.ServerClient
 import cz.nejakejtomas.bluemapminimap.config.WorldConfig
 import cz.nejakejtomas.bluemapminimap.config.WorldDefaults
 import cz.nejakejtomas.bluemapminimap.koin.ScopeManager
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.scope.Scope
 
-object ConfigScreen : KoinComponent {
-    private val scopeManager: ScopeManager by inject()
-    private val coroutineScope = CoroutineScope(Job())
+class ConfigScreen(private val scopeManager: ScopeManager, private val coroutineScope: CoroutineScope) {
     private var currentWorld: World? = null
     private var currentServer: Server? = null
 
-    class World(scope: Scope) {
+    inner class World(scope: Scope) {
         val config: WorldConfig = scope.get()
         val defaultMapName: Deferred<String> = coroutineScope.async {
             scope.get<WorldDefaults>().getMapName()
         }
     }
 
-    class Server(scope: Scope) {
+    inner class Server(scope: Scope) {
         val allMaps: Deferred<List<String>?> = coroutineScope.async {
             scope.get<ServerClient>().maps()
         }
@@ -47,6 +46,7 @@ object ConfigScreen : KoinComponent {
             .setParentScreen(parent)
             .setShouldListSmoothScroll(false)
             .setShouldTabsSmoothScroll(false)
+            .alwaysShowTabs()
             .transparentBackground()
             .createServer()
             .createGeneral()

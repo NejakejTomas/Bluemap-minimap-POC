@@ -8,7 +8,6 @@ import me.x150.renderer.util.RendererUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
-import org.koin.core.component.KoinComponent
 import org.lwjgl.BufferUtils
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -17,12 +16,11 @@ import javax.imageio.ImageIO
 @Suppress("KotlinConstantConditions")
 class TileMap(
     private val minecraft: Minecraft,
-    private val mapClient: MapClient,
+    private val mapClient: Lazy<MapClient>,
     private val renderDispatcher: CoroutineDispatcher,
-    private val tickDispatcher: CoroutineDispatcher
+    private val tickDispatcher: CoroutineDispatcher,
+    private val coroutineScope: CoroutineScope
 ) {
-    private val coroutineScope = CoroutineScope(Job())
-
     private var _tileWidth: Int? = null
     private var _tileHeight: Int? = null
     val tileWidth: Int?
@@ -49,8 +47,8 @@ class TileMap(
         tiles = Array(UNSAFE_TILE_COUNT_X) { Array(UNSAFE_TILE_COUNT_Z) { null } }
 
         coroutineScope.launch(Dispatchers.IO) {
-            val width = mapClient.tileWidth() ?: return@launch
-            val height = mapClient.tileHeight() ?: return@launch
+            val width = mapClient.value.tileWidth() ?: return@launch
+            val height = mapClient.value.tileHeight() ?: return@launch
 
             withContext(renderDispatcher) {
                 _tileWidth = width
@@ -161,7 +159,7 @@ class TileMap(
                 val realZ = tileCenterZ + z
 
                 coroutineScope.launch(Dispatchers.IO) {
-                    val tile = mapClient.tileAt(realX, realZ) ?: return@launch
+                    val tile = mapClient.value.tileAt(realX, realZ) ?: return@launch
                     placeTile(tile, realX, realZ)
                 }
             }
@@ -187,7 +185,7 @@ class TileMap(
         centerAtInternal(newTileX, newTileZ)
     }
 
-    companion object : KoinComponent {
+    companion object {
         // TODO: Not static?
         const val TILE_COUNT_X: Int = 2
         const val TILE_COUNT_Z: Int = 2
