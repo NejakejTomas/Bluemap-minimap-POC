@@ -6,9 +6,9 @@ import org.jetbrains.exposed.sql.ReferenceOption
 object WorldTable : IntIdTable("world") {
     val dimension = text("dimension")
     val mapName = text("mapName").nullable()
-    val server = reference("server", ServerTable, ReferenceOption.NO_ACTION)
+    val serverUrl = reference("serverUrl", ServerTable, ReferenceOption.NO_ACTION)
 
     init {
-        index(true, dimension, server)
+        index(true, dimension, serverUrl)
     }
 }
