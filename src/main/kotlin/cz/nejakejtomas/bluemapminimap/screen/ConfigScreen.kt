@@ -19,6 +19,7 @@ import org.koin.core.scope.Scope
 import java.util.*
 
 class ConfigScreen(private val scopeManager: ScopeManager, private val coroutineScope: CoroutineScope) {
+    // TODO: Save on change
     private var currentWorld: World? = null
     private var currentServer: Server? = null
 
@@ -81,10 +82,6 @@ class ConfigScreen(private val scopeManager: ScopeManager, private val coroutine
                 server.config.getSavedMapUrl()?.toString() ?: ""
             )
             .setTooltip(Component.translatable("bluemapminimap.screen.config.server.mapUrl.tooltip"))
-            .setDefaultValue {
-                if (server.defaultMapUrl.isCompleted) runBlocking { server.defaultMapUrl.await()?.toString() ?: "" }
-                else ""
-            }
             .setErrorSupplier {
                 if (it.isEmpty()) return@setErrorSupplier Optional.empty()
                 if (urlFromUser(it) == null) {
@@ -94,10 +91,12 @@ class ConfigScreen(private val scopeManager: ScopeManager, private val coroutine
                 }
             }
             .setSaveConsumer {
-                val url = urlFromUser(it)!!
+                val url = urlFromUser(it)
                 server.config.setMapUrl(url)
                 scopeManager.configurationChange()
             }
+
+        server.defaultMapUrl.ifCompleted { it?.let { entryBuilder.setDefaultValue(it.toString()) } }
 
         category.addEntry(entryBuilder.build())
 
@@ -116,10 +115,6 @@ class ConfigScreen(private val scopeManager: ScopeManager, private val coroutine
                 world.config.getSavedMapName() ?: ""
             )
             .setTooltip(Component.translatable("bluemapminimap.screen.config.dimension.mapName.tooltip"))
-            .setSelections(
-                if (server.allMaps.isCompleted) runBlocking { server.allMaps.await() }
-                else listOf()
-            )
             .setErrorSupplier {
                 if (it.isEmpty()) return@setErrorSupplier Optional.empty()
                 if (!server.allMaps.isCompleted) return@setErrorSupplier Optional.empty()
@@ -130,17 +125,22 @@ class ConfigScreen(private val scopeManager: ScopeManager, private val coroutine
 
                 return@setErrorSupplier Optional.of(Component.translatable("bluemapminimap.screen.config.dimension.mapName.tooltip"))
             }
-            .setDefaultValue {
-                if (world.defaultMapName.isCompleted) runBlocking { world.defaultMapName.await() }
-                else ""
-            }
             .setSaveConsumer {
                 world.config.setMapName(it.ifEmpty { null })
                 scopeManager.configurationChange()
             }
 
+        // TODO: Try to get cloth config to accept CompletableFuture or at least
+        // evaluate suppliers lazily so this is not needed
+        server.allMaps.ifCompleted { entryBuilder.setSelections(it) }
+        world.defaultMapName.ifCompleted { entryBuilder.setDefaultValue(it) }
+
         category.addEntry(entryBuilder.build())
 
         return this
     }
+}
+
+private fun <T> Deferred<T>.ifCompleted(action: (T) -> Unit) {
+    if (this.isCompleted) action(runBlocking { this@ifCompleted.await() })
 }
