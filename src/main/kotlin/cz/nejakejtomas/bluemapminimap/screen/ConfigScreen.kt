@@ -7,6 +7,7 @@ import cz.nejakejtomas.bluemapminimap.config.WorldConfig
 import cz.nejakejtomas.bluemapminimap.config.WorldDefaults
 import cz.nejakejtomas.bluemapminimap.koin.ScopeManager
 import cz.nejakejtomas.bluemapminimap.urlFromUser
+import cz.nejakejtomas.bluemapminimap.valueOrNull
 import io.ktor.http.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -142,5 +143,6 @@ class ConfigScreen(private val scopeManager: ScopeManager, private val coroutine
 }
 
 private fun <T> Deferred<T>.ifCompleted(action: (T) -> Unit) {
-    if (this.isCompleted) action(runBlocking { this@ifCompleted.await() })
+    val x = valueOrNull()
+    if (x != null) action(x)
 }

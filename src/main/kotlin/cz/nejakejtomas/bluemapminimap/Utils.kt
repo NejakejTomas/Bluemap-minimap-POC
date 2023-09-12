@@ -3,6 +3,8 @@ package cz.nejakejtomas.bluemapminimap
 import inet.ipaddr.IPAddressString
 import inet.ipaddr.IPAddressStringParameters
 import io.ktor.http.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.runBlocking
 import java.net.MalformedURLException
 import java.net.URISyntaxException
 import java.net.URL
@@ -85,6 +87,16 @@ fun urlFromUser(url: String): Url? {
     } catch (e: URISyntaxException) {
         null
     } catch (e: MalformedURLException) {
+        null
+    }
+}
+
+fun <T> Deferred<T>.valueOrNull(): T? {
+    if (!isCompleted) return null
+
+    return try {
+        runBlocking { await() }
+    } catch (_: Throwable) {
         null
     }
 }
