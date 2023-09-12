@@ -9,10 +9,7 @@ import cz.nejakejtomas.bluemapminimap.koin.ScopeManager
 import cz.nejakejtomas.bluemapminimap.urlFromUser
 import cz.nejakejtomas.bluemapminimap.valueOrNull
 import io.ktor.http.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
@@ -67,8 +64,28 @@ class ConfigScreen(private val scopeManager: ScopeManager, private val coroutine
     }
 
     private fun ConfigBuilder.createGeneral(): ConfigBuilder {
+
         title = Component.translatable("bluemapminimap.screen.config.config")
         val category = getOrCreateCategory(Component.translatable("bluemapminimap.screen.config.general.general"))
+        category.addEntry(
+            BooleanListEntry(
+                Component.literal("Bool switch"),
+                coroutineScope.async {
+                    delay(2500)
+                    false
+                },
+                Component.literal("Res"),
+                {
+                    coroutineScope.async {
+                        delay(5000)
+                        false
+                    }
+                },
+                { /*Save*/ },
+                { Optional.of(arrayOf(Component.literal("Tooltip"))) },
+                false
+            )
+        )
 
         return this
     }
