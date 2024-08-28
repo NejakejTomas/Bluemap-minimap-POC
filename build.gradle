@@ -1,14 +1,15 @@
 plugins {
-    id 'fabric-loom'
+//    id 'fabric-loom' version loom_version
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
-    id 'org.jetbrains.kotlin.jvm' version '1.9.10'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.10'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 
     archivesBaseName = project.archives_base_name
     version = project.mod_version
@@ -36,6 +37,10 @@ repositories {
     }
     maven { url 'https://maven.shedaniel.me/' }
     maven { url 'https://maven.terraformersmc.com/releases/' }
+    maven {
+        name = "CottonMC"
+        url = "https://server.bbkr.space/artifactory/libs-release"
+    }
 }
 
 dependencies {
@@ -49,28 +54,29 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
 
-    include implementation('org.jetbrains.exposed:exposed-core:0.42.1')
-    include implementation('org.jetbrains.exposed:exposed-jdbc:0.42.1')
+    include implementation('org.jetbrains.exposed:exposed-core:0.47.0')
+    include implementation('org.jetbrains.exposed:exposed-jdbc:0.47.0')
 
-    include implementation('org.xerial:sqlite-jdbc:3.42.0.0')
+    include implementation('org.xerial:sqlite-jdbc:3.45.1.0')
 
-    shadow implementation('io.insert-koin:koin-core:3.4.2')
+    shadow implementation('io.insert-koin:koin-core:3.6.0-wasm-alpha2')
 
-    shadow implementation('org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1')
+    shadow implementation('org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3')
 
-    shadow implementation('io.ktor:ktor-client-core-jvm:2.3.3')
-    shadow implementation('io.ktor:ktor-client-cio-jvm:2.3.3')
-    shadow implementation('io.ktor:ktor-client-content-negotiation:2.3.3')
-    shadow implementation('io.ktor:ktor-serialization-kotlinx-json:2.3.3')
+    shadow implementation('io.ktor:ktor-client-core-jvm:3.0.0-beta-1')
+    shadow implementation('io.ktor:ktor-client-cio-jvm:3.0.0-beta-1')
+    shadow implementation('io.ktor:ktor-client-content-negotiation:3.0.0-beta-1')
+    shadow implementation('io.ktor:ktor-serialization-kotlinx-json:3.0.0-beta-1')
 
     include modImplementation('com.github.0x3C50:Renderer:master-SNAPSHOT')
 
-    modApi("me.shedaniel.cloth:cloth-config-fabric:11.1.106") {
+    modApi("me.shedaniel.cloth:cloth-config-fabric:15.0.130") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-    modApi "com.terraformersmc:modmenu:7.1.0"
+    modApi "com.terraformersmc:modmenu:11.0.1"
 
-    include implementation('com.github.seancfoley:ipaddress:5.4.0')
+    include implementation('com.github.seancfoley:ipaddress:5.5.0')
+    modImplementation include("io.github.cottonmc:LibGui:11.1.0+1.21")
 }
 
 shadowJar {
@@ -110,8 +116,7 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
 
-    // Minecraft 1.18.1 upwards uses Java 17.
-    it.options.release.set(17)
+    it.options.release.set(21)
 }
 
 java {
@@ -148,4 +153,11 @@ publishing {
     }
 }
 
-compileKotlin.kotlinOptions.jvmTarget = "17"
+compileKotlin {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    kotlinOptions {
+        jvmTarget = "21"
+    }
+}

@@ -1,6 +1,8 @@
 {
   "bluemapminimap.screen.config.config": "Config",
   "bluemapminimap.screen.config.general.general": "General",
+  "bluemapminimap.screen.config.general.debugRender": "Debug renderer",
+  "bluemapminimap.screen.config.general.debugRender.tooltip": "Render additional debug things",
   "bluemapminimap.screen.config.dimension.dimension": "Dimension",
   "bluemapminimap.screen.config.dimension.mapName": "Map name",
   "bluemapminimap.screen.config.dimension.mapName.tooltip": "Set a map to show in minimap in this dimension",

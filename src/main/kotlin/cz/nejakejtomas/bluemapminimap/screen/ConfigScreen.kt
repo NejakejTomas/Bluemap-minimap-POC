@@ -1,10 +1,7 @@
 package cz.nejakejtomas.bluemapminimap.screen
 
 import cz.nejakejtomas.bluemapminimap.client.ServerClient
-import cz.nejakejtomas.bluemapminimap.config.ServerConfig
-import cz.nejakejtomas.bluemapminimap.config.ServerDefaults
-import cz.nejakejtomas.bluemapminimap.config.WorldConfig
-import cz.nejakejtomas.bluemapminimap.config.WorldDefaults
+import cz.nejakejtomas.bluemapminimap.config.*
 import cz.nejakejtomas.bluemapminimap.koin.ScopeManager
 import cz.nejakejtomas.bluemapminimap.urlFromUser
 import cz.nejakejtomas.bluemapminimap.valueOrNull
@@ -19,7 +16,11 @@ import net.minecraft.network.chat.Component
 import org.koin.core.scope.Scope
 import java.util.*
 
-class ConfigScreen(private val scopeManager: ScopeManager, private val coroutineScope: CoroutineScope) {
+class ConfigScreen(
+    private val scopeManager: ScopeManager,
+    private val coroutineScope: CoroutineScope,
+    private val debugConfig: DebugConfig
+) {
     // TODO: Save on change
     private var currentWorld: World? = null
     private var currentServer: Server? = null
@@ -69,6 +70,17 @@ class ConfigScreen(private val scopeManager: ScopeManager, private val coroutine
     private fun ConfigBuilder.createGeneral(): ConfigBuilder {
         title = Component.translatable("bluemapminimap.screen.config.config")
         val category = getOrCreateCategory(Component.translatable("bluemapminimap.screen.config.general.general"))
+
+        val entryBuilder = entryBuilder()
+            .startBooleanToggle(
+                Component.translatable("bluemapminimap.screen.config.general.debugRender"),
+                debugConfig.config.value.debugRender
+            )
+            .setTooltip(Component.translatable("bluemapminimap.screen.config.general.debugRender.tooltip"))
+            .setSaveConsumer {
+                debugConfig.setDebugRender(it)
+            }
+        category.addEntry(entryBuilder.build())
 
         return this
     }

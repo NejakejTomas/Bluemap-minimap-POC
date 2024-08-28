@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Connection.class)
 public abstract class ConnectionMixin {
     // Level leave + server disconnect
-    @Inject(method = "disconnect", at = @At("HEAD"))
+    @Inject(method = "disconnect(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"))
     void onDisconnect(Component component, CallbackInfo ci) {
         if (RenderSystem.isOnRenderThread()) {
             ClientSetWorldCallback.Companion.getEVENT().invoker().onSwitch(null);

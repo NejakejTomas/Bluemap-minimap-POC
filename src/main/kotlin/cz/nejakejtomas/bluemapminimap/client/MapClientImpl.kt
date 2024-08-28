@@ -1,5 +1,6 @@
 package cz.nejakejtomas.bluemapminimap.client
 
+import cz.nejakejtomas.bluemapminimap.common.Size
 import cz.nejakejtomas.bluemapminimap.config.ServerConfig
 import cz.nejakejtomas.bluemapminimap.config.WorldConfig
 import io.ktor.client.*
@@ -79,12 +80,22 @@ class MapClientImpl(private val worldConfig: WorldConfig, private val serverConf
         return@withContext settings()?.tilesSettings?.height
     }
 
+    override suspend fun tileSize() = withContext(Dispatchers.IO) {
+        val settings = settings()?.tilesSettings ?: return@withContext null
+
+        Size(settings.width, settings.height)
+    }
+
     override suspend fun tileAt(x: Int, z: Int): BufferedImage? = withContext(Dispatchers.IO) {
         try {
             val request = client.get(getPathFromCoordinates(x, z) ?: return@withContext null)
 
-            if (request.status != HttpStatusCode.OK) null
+            if (request.status != HttpStatusCode.OK) {
+                println("Downloading tile $x, $z failed (HTTP ${request.status.value})")
+                null
+            }
             else {
+                println("Downloading tile $x, $z succeeded")
                 val byteArray = request.readBytes()
 
                 ByteArrayInputStream(byteArray).use {
@@ -93,6 +104,7 @@ class MapClientImpl(private val worldConfig: WorldConfig, private val serverConf
             }
 
         } catch (e: Exception) {
+            println("Downloading tile $x, $z failed (Exception ${e.message})")
             null
         }
     }

@@ -6,10 +6,7 @@ import cz.nejakejtomas.bluemapminimap.client.MapClient
 import cz.nejakejtomas.bluemapminimap.client.MapClientImpl
 import cz.nejakejtomas.bluemapminimap.client.ServerClient
 import cz.nejakejtomas.bluemapminimap.client.ServerClientImpl
-import cz.nejakejtomas.bluemapminimap.config.ServerConfig
-import cz.nejakejtomas.bluemapminimap.config.ServerDefaults
-import cz.nejakejtomas.bluemapminimap.config.WorldConfig
-import cz.nejakejtomas.bluemapminimap.config.WorldDefaults
+import cz.nejakejtomas.bluemapminimap.config.*
 import cz.nejakejtomas.bluemapminimap.dbs.Database
 import cz.nejakejtomas.bluemapminimap.dbs.ServerDao
 import cz.nejakejtomas.bluemapminimap.dbs.WorldDao
@@ -17,6 +14,7 @@ import cz.nejakejtomas.bluemapminimap.mc.GuiRenderDispatcher
 import cz.nejakejtomas.bluemapminimap.mc.TickDispatcher
 import cz.nejakejtomas.bluemapminimap.render.GuiRenderable
 import cz.nejakejtomas.bluemapminimap.render.Minimap
+import cz.nejakejtomas.bluemapminimap.render.NewNewTileMap
 import cz.nejakejtomas.bluemapminimap.render.TileMap
 import cz.nejakejtomas.bluemapminimap.screen.ConfigScreen
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,10 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import net.minecraft.client.Minecraft
 import org.koin.core.context.startKoin
-import org.koin.core.module.dsl.createdAtStart
-import org.koin.core.module.dsl.scopedOf
-import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.withOptions
+import org.koin.core.module.dsl.*
 import org.koin.dsl.module
 
 object Koin {
@@ -39,10 +34,10 @@ object Koin {
             single<CoroutineDispatcher>(TickDispatcher) { TickDispatcher() }
             single<CoroutineDispatcher>(GuiRenderDispatcher) { GuiRenderDispatcher() }
             single<Database> { Database }
+            singleOf(::DebugConfig)
             single<ScopeManager> { ScopeManager() } withOptions { createdAtStart() }
             singleOf(::ConfigScreen) withOptions { createdAtStart() }
-
-            single<GuiRenderable> { Minimap(get(), get()) }
+            singleOf(::Minimap) { bind<GuiRenderable>() }
         }
 
         fun server() = module {
@@ -68,12 +63,25 @@ object Koin {
 
                 scoped<MapClient> { MapClientImpl(get(), get()) }
 
-                scoped<TileMap> {
-                    TileMap(
+//                scoped<TileMap> {
+//                    OldTileMap(
+//                        get(),
+//                        get(),
+//                        get(GuiRenderDispatcher),
+//                        get(TickDispatcher),
+//                        get()
+//                    )
+//                }
+
+                scoped<TileMap> { params ->
+                    NewNewTileMap(
                         get(),
+                        params.get(),
+                        params.get(),
                         get(),
                         get(GuiRenderDispatcher),
                         get(TickDispatcher),
+                        get(),
                         get()
                     )
                 }
