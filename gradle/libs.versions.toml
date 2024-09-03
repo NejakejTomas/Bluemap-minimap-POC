@@ -1,7 +1,43 @@
 [versions]
 minecraft = "1.21.1"
+fabric-loader = "0.16.2"
+fabric-language-kotlin = "1.12.0+kotlin.2.0.10"
+fabric-api = "0.102.1+1.21.1"
+exposed = "0.54.0"
+sqlite-jdbc = "3.46.0.0"
+koin = "4.0.0-RC2"
+kotlinx-serialization = "1.7.1"
+ktor = "3.0.0-beta-2"
+renderer = "master-SNAPSHOT"
+cloth-config = "15.0.130"
+modmenu = "11.0.1"
+ipaddress = "5.5.0"
+loom = "1.7.1"
+kotlin = "2.0.20"
+shadow = "8.3.0"
 
 [libraries]
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
+fabric-loader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabric-loader" }
+fabric-language-kotlin = { group = "net.fabricmc", name = "fabric-language-kotlin", version.ref = "fabric-language-kotlin" }
+fabric-api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabric-api" }
+exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "exposed" }
+exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
+sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlite-jdbc" }
+koin = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core-jvm", version.ref = "ktor" }
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio-jvm", version.ref = "ktor" }
+ktor-client-contentnegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+renderer = { group = "com.github.0x3C50", name = "Renderer", version.ref = "renderer" }
+clothconfig = { group = "me.shedaniel.cloth", name = "cloth-config-fabric", version.ref = "cloth-config" }
+modmenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modmenu" }
+ipaddress = { group = "com.github.seancfoley", name = "ipaddress", version.ref = "ipaddress" }
+
 
 [plugins]
+fabric-loom = { id = "fabric-loom", version.ref = "loom" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
