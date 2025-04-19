@@ -6,6 +6,16 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.shadow)
+    alias(libs.plugins.ksp)
+    id("androidx.room") version "2.7.0"
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/bluemapminimap.accesswidener")
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 repositories {
@@ -28,6 +38,13 @@ repositories {
         name = "CottonMC"
         url = uri("https://server.bbkr.space/artifactory/libs-release")
     }
+    google {
+        mavenContent {
+            includeGroupAndSubgroups("androidx")
+            includeGroupAndSubgroups("com.android")
+            includeGroupAndSubgroups("com.google")
+        }
+    }
 }
 
 dependencies {
@@ -47,12 +64,15 @@ dependencies {
     implementation(libs.koin)
     shadow(libs.koin)
 
+    shadow(libs.kotlinx.coroutines.jvm)
+    shadow(libs.kotlinx.coroutines.swing)
+    shadow(libs.kotlinx.coroutines)
     shadow(libs.kotlinx.serialization.json)
 
-    shadow(libs.ktor.client.core)
-    shadow(libs.ktor.client.cio)
-    shadow(libs.ktor.client.contentnegotiation)
-    shadow(libs.ktor.serialization.json)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.contentnegotiation)
+    implementation(libs.ktor.serialization.json)
 
     modImplementation(libs.renderer)
     include(libs.renderer)
@@ -62,7 +82,12 @@ dependencies {
     }
     modApi(libs.modmenu)
 
-    shadow(libs.ipaddress)
+    implementation(libs.ipaddress)
+
+    implementation(libs.room.runtime)
+    implementation(libs.room.gradle.plugin)
+    implementation(libs.sqlite.bundled)
+    ksp(libs.room.compiler)
 }
 
 val targetJavaVersion = 21

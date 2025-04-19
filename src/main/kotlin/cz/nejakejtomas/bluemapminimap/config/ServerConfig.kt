@@ -1,14 +1,14 @@
 package cz.nejakejtomas.bluemapminimap.config
 
-import cz.nejakejtomas.bluemapminimap.dbs.ServerDao
+import cz.nejakejtomas.bluemapminimap.dbs.repository.ServerRepository
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class ServerConfig(private val serverDao: ServerDao, private val serverDefaults: ServerDefaults) {
-    fun getSavedMapUrl(): Url? {
+class ServerConfig(private val serverRepository: ServerRepository, private val serverDefaults: ServerDefaults) {
+    suspend fun getSavedMapUrl(): Url? {
         try {
-            return URLBuilder(serverDao.getMapUrl() ?: return null).build()
+            return URLBuilder(serverRepository.getMapUrl() ?: return null).build()
         } catch (_: Exception) {
         }
         return null
@@ -18,7 +18,7 @@ class ServerConfig(private val serverDao: ServerDao, private val serverDefaults:
         return@withContext getSavedMapUrl() ?: serverDefaults.getMapUrl()
     }
 
-    fun setMapUrl(url: Url?) {
-        serverDao.setMapUrl(url?.toString())
+    suspend fun setMapUrl(url: Url?) {
+        serverRepository.setMapUrl(url?.toString())
     }
 }

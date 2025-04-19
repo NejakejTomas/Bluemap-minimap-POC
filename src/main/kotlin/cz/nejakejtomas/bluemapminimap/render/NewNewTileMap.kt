@@ -6,9 +6,9 @@ import com.mojang.blaze3d.vertex.PoseStack
 import cz.nejakejtomas.bluemapminimap.client.MapClient
 import cz.nejakejtomas.bluemapminimap.common.Size
 import cz.nejakejtomas.bluemapminimap.config.DebugConfig
+import cz.nejakejtomas.bluemapminimap.uniqueResourceLocation
 import kotlinx.coroutines.*
 import me.x150.renderer.render.Renderer2d
-import me.x150.renderer.util.RendererUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
@@ -90,7 +90,7 @@ class NewNewTileMap(
     private suspend fun placeTile(tile: BufferedImage, realTileX: Int, realTileZ: Int) {
         val tiles = tiles ?: return
 
-        val location = RendererUtils.randomIdentifier()
+        val location = uniqueResourceLocation()
 
         val texture = withContext(Dispatchers.IO) {
             val byteStream = ByteArrayOutputStream()
@@ -173,6 +173,14 @@ class NewNewTileMap(
                 val offsetZ = z - TILE_DOWNLOAD_BORDER_BUFFER_SIZE
 
                 if (tile != null) {
+//                        graphics.blitSprite(
+//                            { RenderType.gui() },
+//                            tile,
+//                            offsetX * tiles.tileSize.width,
+//                            offsetZ * tiles.tileSize.height,
+//                            tiles.tileSize.width,
+//                            tiles.tileSize.height,
+//                        )
                     Renderer2d.renderTexture(
                         pose,
                         tile,
@@ -183,6 +191,13 @@ class NewNewTileMap(
                     )
                 }
                 if (debugConfig.config.value.debugRender) {
+//                    graphics.fill(
+//                        (offsetX * tiles.tileSize.width),
+//                        (offsetZ * tiles.tileSize.height),
+//                        ((offsetX + 1) * tiles.tileSize.width),
+//                        ((offsetZ + 1) * tiles.tileSize.height),
+//                        (if (offsetX % 2 == offsetZ % 2) Color(255, 0, 0, 50) else Color(0, 0, 255, 50)).rgb,
+//                    )
                     Renderer2d.renderQuad(
                         pose,
                         if (offsetX % 2 == offsetZ % 2) Color(255, 0, 0, 50) else Color(0, 0, 255, 50),

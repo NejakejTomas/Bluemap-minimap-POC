@@ -1,12 +1,9 @@
 package cz.nejakejtomas.bluemapminimap.render
 
-import com.mojang.blaze3d.vertex.PoseStack
 import cz.nejakejtomas.bluemapminimap.common.Size
 import cz.nejakejtomas.bluemapminimap.config.DebugConfig
 import cz.nejakejtomas.bluemapminimap.koin.ScopeManager
-import me.x150.renderer.render.ClipStack
 import me.x150.renderer.render.Renderer2d
-import me.x150.renderer.util.Rectangle
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import org.koin.core.parameter.parametersOf
@@ -132,14 +129,4 @@ class Minimap(private val minecraft: Minecraft, scopeManager: ScopeManager, priv
 //
 //        graphics.pose().popPose()
     }
-}
-
-private fun PoseStack.withPose(function: PoseStack.() -> Unit) {
-    pushPose()
-    function()
-    popPose()
-}
-
-private fun PoseStack.withWindow(rectangle: Rectangle, function: () -> Unit) {
-    ClipStack.use(this, rectangle, function)
 }

@@ -1,6 +1,6 @@
 package cz.nejakejtomas.bluemapminimap.config
 
-import cz.nejakejtomas.bluemapminimap.Server
+import cz.nejakejtomas.bluemapminimap.ServerId
 import cz.nejakejtomas.bluemapminimap.urlFromMinecraft
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -9,7 +9,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 
-class ServerDefaults(private val server: Server) {
+class ServerDefaults(private val server: ServerId) {
     private val client = HttpClient(CIO) {
         install(HttpCache)
         install(HttpTimeout) {

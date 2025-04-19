@@ -1,20 +1,24 @@
 [versions]
 minecraft = "1.21.1"
 fabric-loader = "0.16.2"
-fabric-language-kotlin = "1.12.0+kotlin.2.0.10"
+fabric-language-kotlin = "1.13.2+kotlin.2.1.20"
 fabric-api = "0.102.1+1.21.1"
 exposed = "0.54.0"
 sqlite-jdbc = "3.46.0.0"
-koin = "4.0.0-RC2"
-kotlinx-serialization = "1.7.1"
-ktor = "3.0.0-beta-2"
-renderer = "master-SNAPSHOT"
+koin = "4.0.4"
+kotlinx-coroutines = "1.10.2"
+kotlinx-serialization = "1.8.1"
+ktor = "3.1.2"
+renderer = "1.2.1"
 cloth-config = "15.0.130"
 modmenu = "11.0.1"
-ipaddress = "5.5.0"
-loom = "1.7.1"
-kotlin = "2.0.20"
-shadow = "8.3.0"
+ipaddress = "5.5.1"
+loom = "1.9.1"
+kotlin = "2.1.20"
+shadow = "9.0.0-beta12"
+room = "2.7.0"
+sqlite = "2.5.0"
+ksp = "2.1.20-1.0.32"
 
 [libraries]
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
@@ -25,15 +29,24 @@ exposed-core = { group = "org.jetbrains.exposed", name = "exposed-core", version
 exposed-jdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "exposed" }
 sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlite-jdbc" }
 koin = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-jvm = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core-jvm", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio-jvm", version.ref = "ktor" }
 ktor-client-contentnegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
-renderer = { group = "com.github.0x3C50", name = "Renderer", version.ref = "renderer" }
+renderer = { group = "io.github.0x3c50.renderer", name = "renderer-fabric", version.ref = "renderer" }
 clothconfig = { group = "me.shedaniel.cloth", name = "cloth-config-fabric", version.ref = "cloth-config" }
 modmenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modmenu" }
 ipaddress = { group = "com.github.seancfoley", name = "ipaddress", version.ref = "ipaddress" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-gradle-plugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
+sqlite-bundled = { group = "androidx.sqlite", name = "sqlite-bundled", version.ref = "sqlite" }
+
+
 
 
 [plugins]
@@ -41,3 +54,4 @@ fabric-loom = { id = "fabric-loom", version.ref = "loom" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

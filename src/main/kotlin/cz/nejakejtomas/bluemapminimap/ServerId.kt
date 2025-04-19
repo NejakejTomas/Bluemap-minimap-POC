@@ -1,3 +1,3 @@
 package cz.nejakejtomas.bluemapminimap
 
-data class Server(val url: String)
+data class ServerId(val url: String)

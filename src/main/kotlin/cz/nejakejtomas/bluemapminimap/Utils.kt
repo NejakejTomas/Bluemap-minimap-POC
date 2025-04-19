@@ -3,8 +3,10 @@ package cz.nejakejtomas.bluemapminimap
 import inet.ipaddr.IPAddressString
 import inet.ipaddr.IPAddressStringParameters
 import io.ktor.http.*
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
+import net.minecraft.resources.ResourceLocation
 import java.net.MalformedURLException
 import java.net.URISyntaxException
 import java.net.URL
@@ -99,4 +101,12 @@ fun <T> Deferred<T>.valueOrNull(): T? {
     } catch (_: Throwable) {
         null
     }
+}
+
+private val resourceLocationId = atomic(0L)
+internal fun uniqueResourceLocation(): ResourceLocation {
+    return ResourceLocation.fromNamespaceAndPath(
+        "cz.nejakejtomas.minimap",
+        "temp/${resourceLocationId.getAndIncrement()}"
+    )
 }

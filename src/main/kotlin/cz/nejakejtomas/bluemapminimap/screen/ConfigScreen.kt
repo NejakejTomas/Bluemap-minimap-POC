@@ -92,7 +92,7 @@ class ConfigScreen(
         val entryBuilder = entryBuilder()
             .startTextField(
                 Component.translatable("bluemapminimap.screen.config.server.mapUrl"),
-                server.config.getSavedMapUrl()?.toString() ?: ""
+                runBlocking { server.config.getSavedMapUrl()?.toString() } ?: ""
             )
             .setTooltip(Component.translatable("bluemapminimap.screen.config.server.mapUrl.tooltip"))
             .setErrorSupplier {
@@ -105,7 +105,7 @@ class ConfigScreen(
             }
             .setSaveConsumer {
                 val url = urlFromUser(it)
-                server.config.setMapUrl(url)
+                runBlocking { server.config.setMapUrl(url) }
                 scopeManager.configurationChange()
             }
 
@@ -125,7 +125,7 @@ class ConfigScreen(
         val entryBuilder = entryBuilder()
             .startStringDropdownMenu(
                 Component.translatable("bluemapminimap.screen.config.dimension.mapName"),
-                world.config.getSavedMapName() ?: ""
+                runBlocking { world.config.getSavedMapName() } ?: ""
             )
             .setTooltip(Component.translatable("bluemapminimap.screen.config.dimension.mapName.tooltip"))
             .setErrorSupplier {
@@ -139,7 +139,7 @@ class ConfigScreen(
                 return@setErrorSupplier Optional.of(Component.translatable("bluemapminimap.screen.config.dimension.mapName.tooltip"))
             }
             .setSaveConsumer {
-                world.config.setMapName(it.ifEmpty { null })
+                runBlocking { world.config.setMapName(it.ifEmpty { null }) }
                 scopeManager.configurationChange()
             }
 

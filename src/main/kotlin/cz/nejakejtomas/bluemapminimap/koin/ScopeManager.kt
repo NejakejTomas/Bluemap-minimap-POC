@@ -1,6 +1,5 @@
 package cz.nejakejtomas.bluemapminimap.koin
 
-import cz.nejakejtomas.bluemapminimap.koin.ScopeManager.ScopeChangeCallback
 import cz.nejakejtomas.bluemapminimap.mc.ClientSetServerCallback
 import cz.nejakejtomas.bluemapminimap.mc.ClientSetWorldCallback
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +18,6 @@ class ScopeManager : KoinComponent {
         ClientSetServerCallback.EVENT.register { serverIp ->
             onServerChange(serverIp)
         }
-
 
         ClientSetWorldCallback.EVENT.register { worldName ->
             onWorldChange(worldName)

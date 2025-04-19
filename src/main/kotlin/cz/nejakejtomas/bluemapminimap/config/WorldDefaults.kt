@@ -1,11 +1,11 @@
 package cz.nejakejtomas.bluemapminimap.config
 
-import cz.nejakejtomas.bluemapminimap.World
+import cz.nejakejtomas.bluemapminimap.WorldId
 import cz.nejakejtomas.bluemapminimap.client.ServerClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class WorldDefaults(private val world: World, private val serverClient: ServerClient) {
+class WorldDefaults(private val world: WorldId, private val serverClient: ServerClient) {
     suspend fun getMapName(): String = withContext(Dispatchers.IO) {
         val name = world.dimension.process(DIMENSION_DELIMITERS).toSet()
         val availableMaps =

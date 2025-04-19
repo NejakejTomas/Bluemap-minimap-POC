@@ -1,17 +1,17 @@
 package cz.nejakejtomas.bluemapminimap.config
 
-import cz.nejakejtomas.bluemapminimap.dbs.WorldDao
+import cz.nejakejtomas.bluemapminimap.dbs.repository.WorldRepository
 
-class WorldConfig(private val wordDao: WorldDao, private val wordDefaults: WorldDefaults) {
-    fun getSavedMapName(): String? {
-        return wordDao.getMapName()
+class WorldConfig(private val wordRepository: WorldRepository, private val wordDefaults: WorldDefaults) {
+    suspend fun getSavedMapName(): String? {
+        return wordRepository.getMapName()
     }
 
     suspend fun getMapNameOrDefault(): String {
         return getSavedMapName() ?: wordDefaults.getMapName()
     }
 
-    fun setMapName(name: String?) {
-        wordDao.setMapName(name)
+    suspend fun setMapName(name: String?) {
+        wordRepository.setMapName(name)
     }
 }

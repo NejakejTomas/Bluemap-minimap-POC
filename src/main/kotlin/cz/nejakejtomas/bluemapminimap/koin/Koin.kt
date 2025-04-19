@@ -1,15 +1,19 @@
 package cz.nejakejtomas.bluemapminimap.koin
 
-import cz.nejakejtomas.bluemapminimap.Server
-import cz.nejakejtomas.bluemapminimap.World
+import androidx.room.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import cz.nejakejtomas.bluemapminimap.ServerId
+import cz.nejakejtomas.bluemapminimap.WorldId
 import cz.nejakejtomas.bluemapminimap.client.MapClient
 import cz.nejakejtomas.bluemapminimap.client.MapClientImpl
 import cz.nejakejtomas.bluemapminimap.client.ServerClient
 import cz.nejakejtomas.bluemapminimap.client.ServerClientImpl
 import cz.nejakejtomas.bluemapminimap.config.*
-import cz.nejakejtomas.bluemapminimap.dbs.Database
-import cz.nejakejtomas.bluemapminimap.dbs.ServerDao
-import cz.nejakejtomas.bluemapminimap.dbs.WorldDao
+import cz.nejakejtomas.bluemapminimap.dbs.AppDatabase
+import cz.nejakejtomas.bluemapminimap.dbs.dao.ServerDao
+import cz.nejakejtomas.bluemapminimap.dbs.dao.WorldDao
+import cz.nejakejtomas.bluemapminimap.dbs.repository.ServerRepository
+import cz.nejakejtomas.bluemapminimap.dbs.repository.WorldRepository
 import cz.nejakejtomas.bluemapminimap.mc.GuiRenderDispatcher
 import cz.nejakejtomas.bluemapminimap.mc.TickDispatcher
 import cz.nejakejtomas.bluemapminimap.render.GuiRenderable
@@ -19,6 +23,7 @@ import cz.nejakejtomas.bluemapminimap.render.TileMap
 import cz.nejakejtomas.bluemapminimap.screen.ConfigScreen
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import net.minecraft.client.Minecraft
 import org.koin.core.context.startKoin
@@ -33,20 +38,33 @@ object Koin {
             single<CoroutineScope> { get(LifecycleQualifier.Global) }
             single<CoroutineDispatcher>(TickDispatcher) { TickDispatcher() }
             single<CoroutineDispatcher>(GuiRenderDispatcher) { GuiRenderDispatcher() }
-            single<Database> { Database }
             singleOf(::DebugConfig)
             single<ScopeManager> { ScopeManager() } withOptions { createdAtStart() }
             singleOf(::ConfigScreen) withOptions { createdAtStart() }
             singleOf(::Minimap) { bind<GuiRenderable>() }
+
+            // Database
+            single {
+                Room.databaseBuilder<AppDatabase>(
+                    AppDatabase::class.java.simpleName
+                ).apply {
+                    setDriver(BundledSQLiteDriver())
+                    setQueryCoroutineContext(Dispatchers.IO)
+                }
+                    .build()
+            }
+            single<ServerDao> { get<AppDatabase>().serverDao() }
+            single<WorldDao> { get<AppDatabase>().worldDao() }
         }
 
         fun server() = module {
             scope(LifecycleQualifier.Server) {
                 scoped<CoroutineScope>(LifecycleQualifier.Server) { CoroutineScope(SupervisorJob()) }
                 scoped<CoroutineScope> { get(LifecycleQualifier.Server) }
-                scoped<Server> { Server(id) }
+                scoped<ServerId> { ServerId(id) }
                 scoped<ServerClient> { ServerClientImpl(get()) }
-                scopedOf(::ServerDao)
+//                scopedOf(::ServerDao)
+                scopedOf(::ServerRepository)
                 scopedOf(::ServerDefaults)
                 scopedOf(::ServerConfig)
             }
@@ -56,8 +74,9 @@ object Koin {
             scope(LifecycleQualifier.World) {
                 scoped<CoroutineScope>(LifecycleQualifier.World) { CoroutineScope(SupervisorJob()) }
                 scoped<CoroutineScope> { get(LifecycleQualifier.World) }
-                scoped<World> { World(id) }
-                scopedOf(::WorldDao)
+                scoped<WorldId> { WorldId(id) }
+//                scopedOf(::WorldDao)
+                scopedOf(::WorldRepository)
                 scopedOf(::WorldDefaults)
                 scopedOf(::WorldConfig)
 
