@@ -1,15 +1,14 @@
 package cz.nejakejtomas.bluemapminimap.config
 
-import cz.nejakejtomas.bluemapminimap.WorldId
 import cz.nejakejtomas.bluemapminimap.client.ServerClient
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import cz.nejakejtomas.bluemapminimap.model.ServerId
+import cz.nejakejtomas.bluemapminimap.model.WorldId
 
-class WorldDefaults(private val world: WorldId, private val serverClient: ServerClient) {
-    suspend fun getMapName(): String = withContext(Dispatchers.IO) {
-        val name = world.dimension.process(DIMENSION_DELIMITERS).toSet()
+class WorldDefaults(private val serverClient: ServerClient) {
+    suspend fun getMapName(serverId: ServerId, worldId: WorldId): String {
+        val name = worldId.dimension.process(DIMENSION_DELIMITERS).toSet()
         val availableMaps =
-            serverClient.maps()?.map { it.process(MAPS_DELIMITERS).toSet() to it } ?: return@withContext ""
+            serverClient.maps(serverId)?.map { it.process(MAPS_DELIMITERS).toSet() to it } ?: return ""
 
         val bestMap = availableMaps.map { map ->
             val totalWordCount = name.union(map.first).size
@@ -18,7 +17,7 @@ class WorldDefaults(private val world: WorldId, private val serverClient: Server
             totalWordCount - sameWordCount to map.second
         }.minByOrNull { it.first }?.second ?: ""
 
-        return@withContext bestMap
+        return bestMap
     }
 
     companion object {

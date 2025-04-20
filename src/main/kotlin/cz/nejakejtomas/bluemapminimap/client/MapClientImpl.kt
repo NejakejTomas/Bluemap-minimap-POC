@@ -1,8 +1,6 @@
 package cz.nejakejtomas.bluemapminimap.client
 
 import cz.nejakejtomas.bluemapminimap.common.Size
-import cz.nejakejtomas.bluemapminimap.config.ServerConfig
-import cz.nejakejtomas.bluemapminimap.config.WorldConfig
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -20,7 +18,10 @@ import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 import kotlin.math.abs
 
-class MapClientImpl(private val worldConfig: WorldConfig, private val serverConfig: ServerConfig) : MapClient {
+class MapClientImpl(
+    private val mapUrl: Url?,
+    private val mapName: String,
+) : MapClient {
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -31,7 +32,9 @@ class MapClientImpl(private val worldConfig: WorldConfig, private val serverConf
     }
 
     private suspend fun path(): Url? = withContext(Dispatchers.IO) {
-        URLBuilder(serverConfig.getMapUrlOrDefault() ?: return@withContext null).appendPathSegments("maps").build()
+        URLBuilder(mapUrl ?: return@withContext null)
+            .appendPathSegments("maps")
+            .build()
     }
 
     private var savedSettings: MapSettings? = null
@@ -39,7 +42,7 @@ class MapClientImpl(private val worldConfig: WorldConfig, private val serverConf
         try {
             savedSettings?.let { return@withContext it }
             val url = URLBuilder(path() ?: return@withContext null).appendPathSegments(
-                worldConfig.getMapNameOrDefault(),
+                mapName,
                 "settings.json"
             ).build()
             val response: MapSettings = client.get(url).body()
@@ -61,7 +64,7 @@ class MapClientImpl(private val worldConfig: WorldConfig, private val serverConf
     private suspend fun getPathFromCoordinates(x: Int, z: Int): Url? = withContext(Dispatchers.IO) {
         return@withContext URLBuilder(path() ?: return@withContext null)
             .appendPathSegments(
-                worldConfig.getMapNameOrDefault(),
+                mapName,
                 "tiles",
                 "1",
                 "x${getPathFromCoordinate(x)}",
@@ -93,10 +96,9 @@ class MapClientImpl(private val worldConfig: WorldConfig, private val serverConf
             if (request.status != HttpStatusCode.OK) {
                 println("Downloading tile $x, $z failed (HTTP ${request.status.value})")
                 null
-            }
-            else {
+            } else {
                 println("Downloading tile $x, $z succeeded")
-                val byteArray = request.readBytes()
+                val byteArray = request.readRawBytes()
 
                 ByteArrayInputStream(byteArray).use {
                     ImageIO.read(it)

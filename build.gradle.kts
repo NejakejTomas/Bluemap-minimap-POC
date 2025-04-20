@@ -61,8 +61,13 @@ dependencies {
 
     shadow(libs.sqlite.jdbc)
 
-    implementation(libs.koin)
-    shadow(libs.koin)
+    implementation(project.dependencies.platform(libs.koin.bom))
+
+    implementation(libs.koin.core)
+    shadow(libs.koin.core)
+
+    implementation(libs.koin.compose.viewmodel)
+    shadow(libs.koin.compose.viewmodel)
 
     shadow(libs.kotlinx.coroutines.jvm)
     shadow(libs.kotlinx.coroutines.swing)
@@ -87,6 +92,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.gradle.plugin)
     implementation(libs.sqlite.bundled)
+    implementation(libs.androidx.lifecycle.viewmodel)
     ksp(libs.room.compiler)
 }
 

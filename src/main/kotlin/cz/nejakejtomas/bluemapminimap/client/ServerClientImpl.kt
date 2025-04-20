@@ -1,6 +1,7 @@
 package cz.nejakejtomas.bluemapminimap.client
 
-import cz.nejakejtomas.bluemapminimap.config.ServerConfig
+import cz.nejakejtomas.bluemapminimap.model.ServerId
+import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedOrDefaultMapUrlUseCase
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -13,7 +14,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class ServerClientImpl(private val serverConfig: ServerConfig) : ServerClient {
+class ServerClientImpl(
+    private val getSavedOrDefaultMapUrlUseCase: GetSavedOrDefaultMapUrlUseCase,
+) : ServerClient {
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -24,12 +27,12 @@ class ServerClientImpl(private val serverConfig: ServerConfig) : ServerClient {
     }
 
     private var savedSettings: ServerSettings? = null
-    private suspend fun settings(): ServerSettings? = withContext(Dispatchers.IO) {
+    private suspend fun settings(serverId: ServerId): ServerSettings? = withContext(Dispatchers.IO) {
         try {
             savedSettings?.let { return@withContext it }
 
             val url = URLBuilder(
-                serverConfig.getMapUrlOrDefault() ?: return@withContext null
+                getSavedOrDefaultMapUrlUseCase(serverId) ?: return@withContext null
             ).appendPathSegments("settings.json").build()
             val response: ServerSettings = client.get(url).body()
             savedSettings = response
@@ -41,8 +44,8 @@ class ServerClientImpl(private val serverConfig: ServerConfig) : ServerClient {
         }
     }
 
-    override suspend fun maps(): List<String>? = withContext(Dispatchers.IO) {
-        return@withContext settings()?.maps
+    override suspend fun maps(serverId: ServerId): List<String>? = withContext(Dispatchers.IO) {
+        return@withContext settings(serverId)?.maps
     }
 
 }

@@ -1,28 +1,78 @@
 package cz.nejakejtomas.bluemapminimap.render
 
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import cz.nejakejtomas.bluemapminimap.common.Size
 import cz.nejakejtomas.bluemapminimap.config.DebugConfig
-import cz.nejakejtomas.bluemapminimap.koin.ScopeManager
+import cz.nejakejtomas.bluemapminimap.screen.minimap.MinimapViewModel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import me.x150.renderer.render.Renderer2d
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import org.koin.core.annotation.KoinInternalApi
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.parameter.parametersOf
+import org.koin.mp.KoinPlatformTools
+import org.koin.viewmodel.defaultExtras
+import org.koin.viewmodel.resolveViewModel
 import java.awt.Color
 
-class Minimap(private val minecraft: Minecraft, scopeManager: ScopeManager, private val debugConfig: DebugConfig) :
-    GuiRenderable {
+@OptIn(KoinInternalApi::class)
+class Minimap(
+    // TODO: Get rid of
+    private val minecraft: Minecraft,
+    private val debugConfig: DebugConfig
+) :
+    GuiRenderable, ViewModelStoreOwner, KoinComponent {
     private val size = Size(750, 750)
 
-    private var _tileMap: TileMap? = null
+    // TODO: CoroutineScope for each combination of map/server?
+    private val coroutineScope: CoroutineScope = GlobalScope
+
+    override val viewModelStore = ViewModelStore()
+    private val viewModelProvider = ViewModelProvider.create(this)
+
+    private val minimapViewModel = resolveViewModel(
+        MinimapViewModel::class,
+        viewModelStore,
+        null,
+        defaultExtras(this),
+        null,
+        KoinPlatformTools.defaultContext().get().scopeRegistry.rootScope,
+        null
+    )
+
+    private val tileMap = minimapViewModel.uiState.map { state ->
+        if (state.mapUrl == null) return@map null
+        if (state.mapName == null) return@map null
+
+        get<TileMap> {
+            parametersOf(
+                TileMapSettings(true, size),
+                coroutineScope,
+                state.mapUrl,
+                state.mapName,
+            )
+        }
+    }.stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
     init {
-        scopeManager.newWorldScope.register {
-            _tileMap = it?.get { parametersOf(size, true) }
+        coroutineScope.launch(Dispatchers.Default) {
+            try {
+                awaitCancellation()
+            } finally {
+                viewModelStore.clear()
+            }
         }
     }
 
     override fun render(graphics: GuiGraphics) {
-        val tileMap = _tileMap ?: return
+        val tileMap = tileMap.value ?: return
         val player = minecraft.player ?: return
 
         val screenSize = Size(75.0, 75.0)
@@ -38,9 +88,6 @@ class Minimap(private val minecraft: Minecraft, scopeManager: ScopeManager, priv
 //            withWindow(Rectangle(0.0, 0.0, screenSize.width, screenSize.height)) {
             withPose {
                 scale(scaleWidth.toFloat(), scaleHeight.toFloat(), 1f)
-
-                // TMP
-                tileMap as NewNewTileMap
 
                 tileMap.render(graphics.pose(), player.x, player.z, player.yRot)
                 }

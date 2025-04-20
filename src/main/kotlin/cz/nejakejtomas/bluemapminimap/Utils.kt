@@ -3,6 +3,7 @@ package cz.nejakejtomas.bluemapminimap
 import inet.ipaddr.IPAddressString
 import inet.ipaddr.IPAddressStringParameters
 import io.ktor.http.*
+import io.ktor.utils.io.*
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
@@ -109,4 +110,22 @@ internal fun uniqueResourceLocation(): ResourceLocation {
         "cz.nejakejtomas.minimap",
         "temp/${resourceLocationId.getAndIncrement()}"
     )
+}
+
+
+inline fun <R> runSuspendCatching(onCancel: (() -> Unit) = {}, block: () -> R): Result<R> {
+    return try {
+        Result.success(block())
+    } catch (e: Throwable) {
+        if (e is CancellationException) {
+            try {
+                onCancel()
+            } catch (t: Throwable) {
+                e.addSuppressed(t)
+            }
+            throw e
+        }
+
+        Result.failure(e)
+    }
 }

@@ -1,9 +1,9 @@
 package cz.nejakejtomas.bluemapminimap
 
-import cz.nejakejtomas.bluemapminimap.koin.Koin
 import cz.nejakejtomas.bluemapminimap.render.GuiRenderable
 import me.x150.renderer.event.RenderEvents
 import org.koin.core.component.KoinComponent
+import org.koin.core.context.startKoin
 
 @Suppress("unused")
 fun init() {
@@ -12,7 +12,9 @@ fun init() {
 
 object Mod : KoinComponent {
     fun init() {
-        Koin.start()
+        startKoin {
+            modules(module)
+        }
 
         val renderables = getKoin().getAll<GuiRenderable>()
 

@@ -19,10 +19,9 @@ import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import kotlin.math.floor
 
-class NewNewTileMap(
+class TileMapImpl(
     private val minecraft: Minecraft,
-    private val targetBlockSize: Size<Int>,
-    private val doRotate: Boolean,
+    private val settings: TileMapSettings,
     private val coroutineScope: CoroutineScope,
     private val renderDispatcher: CoroutineDispatcher,
     private val tickDispatcher: CoroutineDispatcher,
@@ -30,10 +29,10 @@ class NewNewTileMap(
     private val debugConfig: DebugConfig,
 ) : TileMap {
 
-    data class Tiles(
+    private class Tiles(
         val tilesSize: Size<Int>,
         val tileSize: Size<Int>,
-        @Suppress("ArrayInDataClass") val data: Array<Array<ResourceLocation?>>
+        val data: Array<Array<ResourceLocation?>>
     )
 
     private var tiles: Tiles? = null
@@ -138,9 +137,9 @@ class NewNewTileMap(
         val tiles = tiles ?: return
 
         val centerX =
-            ((tiles.tileSize.width * (tiles.tilesSize.width - 2 * TILE_DOWNLOAD_BORDER_BUFFER_SIZE) - targetBlockSize.width) / 2).toDouble()
+            ((tiles.tileSize.width * (tiles.tilesSize.width - 2 * TILE_DOWNLOAD_BORDER_BUFFER_SIZE) - settings.targetBlockSize.width) / 2).toDouble()
         val centerY =
-            ((tiles.tileSize.height * (tiles.tilesSize.height - 2 * TILE_DOWNLOAD_BORDER_BUFFER_SIZE) - targetBlockSize.height) / 2).toDouble()
+            ((tiles.tileSize.height * (tiles.tilesSize.height - 2 * TILE_DOWNLOAD_BORDER_BUFFER_SIZE) - settings.targetBlockSize.height) / 2).toDouble()
 
 
         val playerTileOffsetX = (floatMod(positionX, tiles.tileSize.width.toDouble()))
@@ -233,7 +232,7 @@ class NewNewTileMap(
             }
         }
 
-        this.tiles = tiles.copy(data = newTiles)
+        this.tiles = Tiles(tiles.tilesSize, tiles.tileSize, newTiles)
 
         currentX = tileX
         currentZ = tileZ
@@ -256,8 +255,8 @@ class NewNewTileMap(
 
     private fun calculateTilesSize(tileSize: Size<Int>): Size<Int> {
         // Round up, add two to have some buffer
-        val tilesNeededWidth = (targetBlockSize.width + (tileSize.width - 1)) / tileSize.width
-        val tilesNeededHeight = (targetBlockSize.height + (tileSize.height - 1)) / tileSize.height
+        val tilesNeededWidth = (settings.targetBlockSize.width + (tileSize.width - 1)) / tileSize.width
+        val tilesNeededHeight = (settings.targetBlockSize.height + (tileSize.height - 1)) / tileSize.height
         // 1 + 1 tile from each side, so we have time to download another tiles and 1 tile from each side, and we can
         // move "camera"
         val width = tilesNeededWidth + 2 * TILE_DOWNLOAD_BORDER_BUFFER_SIZE + 2 * TILE_RENDER_BORDER_BUFFER_SIZE
