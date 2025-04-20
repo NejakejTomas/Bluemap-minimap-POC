@@ -1,7 +1,7 @@
 package cz.nejakejtomas.bluemapminimap.render
 
-import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.GuiGraphics
 
 interface TileMap {
-    fun render(pose: PoseStack, positionX: Double, positionZ: Double, rotation: Float?)
+    fun render(guiGraphics: GuiGraphics, positionX: Double, positionZ: Double, rotation: Float?)
 }

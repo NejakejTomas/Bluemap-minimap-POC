@@ -10,7 +10,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import me.x150.renderer.render.Renderer2d
+import me.x150.renderer.render.ExtendedDrawContext
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import org.koin.core.annotation.KoinInternalApi
@@ -75,7 +75,7 @@ class Minimap(
         val tileMap = tileMap.value ?: return
         val player = minecraft.player ?: return
 
-        val screenSize = Size(75.0, 75.0)
+        val screenSize = Size(75.0f, 75.0f)
 
         val scaleWidth = screenSize.width / size.width
         val scaleHeight = screenSize.height / size.height
@@ -87,14 +87,30 @@ class Minimap(
             // Render only in set window
 //            withWindow(Rectangle(0.0, 0.0, screenSize.width, screenSize.height)) {
             withPose {
-                scale(scaleWidth.toFloat(), scaleHeight.toFloat(), 1f)
+                scale(scaleWidth, scaleHeight, 1f)
 
-                tileMap.render(graphics.pose(), player.x, player.z, player.yRot)
-                }
+                tileMap.render(graphics, player.x, player.z, player.yRot)
+            }
 
             if (debugConfig.config.value.debugRender) {
-                Renderer2d.renderLine(graphics.pose(), Color.green, 0.0, 0.0, screenSize.width, screenSize.height)
-                Renderer2d.renderLine(graphics.pose(), Color.green, 0.0, screenSize.height, screenSize.width, 0.0)
+                ExtendedDrawContext.drawLine(
+                    graphics,
+                    0.0f,
+                    0.0f,
+                    screenSize.width,
+                    screenSize.height,
+                    1f,
+                    me.x150.renderer.util.Color(Color.green)
+                )
+                ExtendedDrawContext.drawLine(
+                    graphics,
+                    0.0f,
+                    screenSize.height,
+                    screenSize.width,
+                    0.0f,
+                    1f,
+                    me.x150.renderer.util.Color(Color.green)
+                )
             }
 //            }
         }

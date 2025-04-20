@@ -32,7 +32,6 @@ repositories {
         name = "Jitpack"
         url = uri("https://jitpack.io")
     }
-    maven { url = uri("https://maven.shedaniel.me/") }
     maven { url = uri("https://maven.terraformersmc.com/releases/") }
     maven {
         name = "CottonMC"
@@ -56,11 +55,6 @@ dependencies {
 
     modImplementation(libs.fabric.language.kotlin)
 
-    shadow(libs.exposed.core)
-    shadow(libs.exposed.jdbc)
-
-    shadow(libs.sqlite.jdbc)
-
     implementation(project.dependencies.platform(libs.koin.bom))
 
     implementation(libs.koin.core)
@@ -82,9 +76,6 @@ dependencies {
     modImplementation(libs.renderer)
     include(libs.renderer)
 
-    modApi(libs.clothconfig) {
-        exclude(group = libs.fabric.api.get().group)
-    }
     modApi(libs.modmenu)
 
     implementation(libs.ipaddress)

@@ -2,6 +2,7 @@ package cz.nejakejtomas.bluemapminimap.dbs.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Upsert
 import cz.nejakejtomas.bluemapminimap.dbs.entity.World
 
@@ -13,6 +14,7 @@ interface WorldDao {
                 "WHERE world.dimension = :dimension AND server.url = :serverUrl " +
                 "LIMIT 1"
     )
+    @RewriteQueriesToDropUnusedColumns
     suspend fun select(dimension: String, serverUrl: String): World?
 
     @Upsert

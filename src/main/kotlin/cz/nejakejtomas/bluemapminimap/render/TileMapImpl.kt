@@ -2,14 +2,14 @@ package cz.nejakejtomas.bluemapminimap.render
 
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.PoseStack
 import cz.nejakejtomas.bluemapminimap.client.MapClient
 import cz.nejakejtomas.bluemapminimap.common.Size
 import cz.nejakejtomas.bluemapminimap.config.DebugConfig
 import cz.nejakejtomas.bluemapminimap.uniqueResourceLocation
 import kotlinx.coroutines.*
-import me.x150.renderer.render.Renderer2d
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
 import org.lwjgl.BufferUtils
@@ -91,20 +91,22 @@ class TileMapImpl(
 
         val location = uniqueResourceLocation()
 
-        val texture = withContext(Dispatchers.IO) {
+        val nativeImage = withContext(Dispatchers.IO) {
             val byteStream = ByteArrayOutputStream()
             ImageIO.write(tile.getSubimage(0, 0, tiles.tileSize.width, tiles.tileSize.height), "png", byteStream)
             val bytes = byteStream.toByteArray()
             val data = BufferUtils.createByteBuffer(bytes.size).put(bytes)
             data.flip()
-            return@withContext DynamicTexture(NativeImage.read(data))
-        }
 
-        withContext(tickDispatcher) {
-            minecraft.textureManager.register(location, texture)
+            NativeImage.read(data)
         }
 
         withContext(renderDispatcher) {
+            val texture = DynamicTexture({ "TileMapImpl" }, nativeImage)
+
+            RenderSystem.assertOnRenderThread()
+            minecraft.textureManager.register(location, texture)
+
             val relativeX = realTileX - currentX
             val relativeZ = realTileZ - currentZ
 
@@ -115,9 +117,7 @@ class TileMapImpl(
                 relativeZ >= tiles.tilesSize.height
             ) {
                 // Fail -> release texture
-                withContext(tickDispatcher) {
-                    minecraft.textureManager.release(location)
-                }
+                minecraft.textureManager.release(location)
                 return@withContext
             }
 
@@ -130,7 +130,7 @@ class TileMapImpl(
         return x - floor(x / y) * y
     }
 
-    override fun render(pose: PoseStack, positionX: Double, positionZ: Double, rotation: Float?) {
+    override fun render(guiGraphics: GuiGraphics, positionX: Double, positionZ: Double, rotation: Float?) {
         RenderSystem.assertOnRenderThread()
         centerAt(floor(positionX).toInt(), floor(positionZ).toInt())
 
@@ -145,13 +145,15 @@ class TileMapImpl(
         val playerTileOffsetX = (floatMod(positionX, tiles.tileSize.width.toDouble()))
         val playerTileOffsetZ = (floatMod(positionZ, tiles.tileSize.height.toDouble()))
 
-        pose.translate(
-            -centerX,
-            -centerY,
-            0.0
-        )
+        guiGraphics.pose().withPose {
 
-        pose.translate(-playerTileOffsetX, -playerTileOffsetZ, 0.0)
+            translate(
+                -centerX,
+                -centerY,
+                0.0
+            )
+
+            translate(-playerTileOffsetX, -playerTileOffsetZ, 0.0)
 
 //        rotation?.also {
 //            pose.rotateAround(
@@ -164,50 +166,40 @@ class TileMapImpl(
 //            )
 //        }
 
-        for (x in TILE_DOWNLOAD_BORDER_BUFFER_SIZE until tiles.tilesSize.width - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) {
-            for (z in TILE_DOWNLOAD_BORDER_BUFFER_SIZE until tiles.tilesSize.height - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) {
-                val tile = tiles.data[x][z]
+            for (x in TILE_DOWNLOAD_BORDER_BUFFER_SIZE until tiles.tilesSize.width - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) {
+                for (z in TILE_DOWNLOAD_BORDER_BUFFER_SIZE until tiles.tilesSize.height - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) {
+                    val tile = tiles.data[x][z]
 
-                val offsetX = x - TILE_DOWNLOAD_BORDER_BUFFER_SIZE
-                val offsetZ = z - TILE_DOWNLOAD_BORDER_BUFFER_SIZE
+                    val offsetX = x - TILE_DOWNLOAD_BORDER_BUFFER_SIZE
+                    val offsetZ = z - TILE_DOWNLOAD_BORDER_BUFFER_SIZE
 
-                if (tile != null) {
-//                        graphics.blitSprite(
-//                            { RenderType.gui() },
-//                            tile,
-//                            offsetX * tiles.tileSize.width,
-//                            offsetZ * tiles.tileSize.height,
-//                            tiles.tileSize.width,
-//                            tiles.tileSize.height,
-//                        )
-                    Renderer2d.renderTexture(
-                        pose,
-                        tile,
-                        (offsetX * tiles.tileSize.width).toDouble(),
-                        (offsetZ * tiles.tileSize.height).toDouble(),
-                        tiles.tileSize.width.toDouble(),
-                        tiles.tileSize.height.toDouble(),
-                    )
-                }
-                if (debugConfig.config.value.debugRender) {
-//                    graphics.fill(
-//                        (offsetX * tiles.tileSize.width),
-//                        (offsetZ * tiles.tileSize.height),
-//                        ((offsetX + 1) * tiles.tileSize.width),
-//                        ((offsetZ + 1) * tiles.tileSize.height),
-//                        (if (offsetX % 2 == offsetZ % 2) Color(255, 0, 0, 50) else Color(0, 0, 255, 50)).rgb,
-//                    )
-                    Renderer2d.renderQuad(
-                        pose,
-                        if (offsetX % 2 == offsetZ % 2) Color(255, 0, 0, 50) else Color(0, 0, 255, 50),
-                        (offsetX * tiles.tileSize.width).toDouble(),
-                        (offsetZ * tiles.tileSize.height).toDouble(),
-                        ((offsetX + 1) * tiles.tileSize.width).toDouble(),
-                        ((offsetZ + 1) * tiles.tileSize.height).toDouble(),
-                    )
+                    if (tile != null) {
+                        guiGraphics.blit(
+                            RenderType::guiTexturedOverlay,
+                            tile,
+                            offsetX * tiles.tileSize.width,
+                            offsetZ * tiles.tileSize.height,
+                            0f,
+                            0f,
+                            tiles.tileSize.width,
+                            tiles.tileSize.height,
+                            tiles.tileSize.width,
+                            tiles.tileSize.height,
+                        )
+                    }
+                    if (debugConfig.config.value.debugRender) {
+                        guiGraphics.fill(
+                            (offsetX * tiles.tileSize.width),
+                            (offsetZ * tiles.tileSize.height),
+                            ((offsetX + 1) * tiles.tileSize.width),
+                            ((offsetZ + 1) * tiles.tileSize.height),
+                            (if (offsetX % 2 == offsetZ % 2) Color(255, 0, 0, 50) else Color(0, 0, 255, 50)).rgb,
+                        )
+                    }
                 }
             }
         }
+
     }
 
     private fun centerAtInternal(tiles: Tiles, tileX: Int, tileZ: Int) {
@@ -225,9 +217,7 @@ class TileMapImpl(
         tiles.data.forEach {
             it.forEach { pair ->
                 pair?.let { p ->
-                    coroutineScope.launch(tickDispatcher) {
-                        minecraft.textureManager.release(p)
-                    }
+                    minecraft.textureManager.release(p)
                 }
             }
         }
