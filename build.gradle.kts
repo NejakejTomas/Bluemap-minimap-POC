@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.shadow)
     alias(libs.plugins.ksp)
     id("androidx.room") version "2.7.0"
+    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
 }
 
 loom {
@@ -16,6 +18,12 @@ loom {
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+configurations.all {
+    attributes {
+        attribute(Attribute.of("ui", String::class.java), "awt")
+    }
 }
 
 repositories {
@@ -44,6 +52,7 @@ repositories {
             includeGroupAndSubgroups("com.google")
         }
     }
+    mavenLocal()
 }
 
 dependencies {
@@ -83,8 +92,24 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.gradle.plugin)
     implementation(libs.sqlite.bundled)
-    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.lifecycle.viewmodel)
     ksp(libs.room.compiler)
+
+    modImplementation(libs.compose.library)
+
+    implementation(compose.foundation)
+    implementation(compose.runtime)
+    implementation(compose.material3)
+    implementation(compose.material3AdaptiveNavigationSuite)
+    implementation(compose.components.resources)
+    implementation(libs.navigation)
+    implementation(project.dependencies.platform(libs.compose.bom))
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "cz.nejakejtomas.minimap.resources"
+    generateResClass = auto
 }
 
 val targetJavaVersion = 21
