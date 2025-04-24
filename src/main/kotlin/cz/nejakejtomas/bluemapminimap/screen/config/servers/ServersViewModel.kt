@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cz.nejakejtomas.bluemapminimap.model.ServerId
 import cz.nejakejtomas.bluemapminimap.repository.MinecraftRepository
-import cz.nejakejtomas.bluemapminimap.usecase.mapname.SetMapNameUseCase
 import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedMapUrlUseCase
-import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedOrDefaultMapUrlUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedOrGuessMapUrlUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.mapurl.SaveMapUrlUseCase
+import io.ktor.http.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -15,8 +16,8 @@ import kotlinx.coroutines.launch
 class ServersViewModel(
     private val minecraftRepository: MinecraftRepository,
     private val getSavedMapUrlUseCase: GetSavedMapUrlUseCase,
-    private val getSavedOrDefaultMapUrlUseCase: GetSavedOrDefaultMapUrlUseCase,
-    private val setMapNameUseCase: SetMapNameUseCase,
+    private val getSavedOrGuessMapUrlUseCase: GetSavedOrGuessMapUrlUseCase,
+    private val saveMapUrlUseCase: SaveMapUrlUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ServersUiState())
     val uiState = _uiState.asStateFlow()
@@ -38,5 +39,9 @@ class ServersViewModel(
         val mapUrl = getSavedMapUrlUseCase(serverId)?.toString() ?: ""
 //        val mapUrl = getSavedOrDefaultMapUrlUseCase(serverId)?.toString() ?: ""
         return ServersUiState.Server(serverId, mapUrl)
+    }
+
+    fun setMapUrl(url: Url) {
+//        TODO
     }
 }

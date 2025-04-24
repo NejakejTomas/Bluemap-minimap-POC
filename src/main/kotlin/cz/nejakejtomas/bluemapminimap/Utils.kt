@@ -12,19 +12,14 @@ import java.net.MalformedURLException
 import java.net.URISyntaxException
 import java.net.URL
 
-private fun ensureHttp(url: String): String {
+fun ensureHttp(url: String): String {
     return if (url.startsWith("http://") || url.startsWith("https://")) url
     else "http://$url"
 }
 
-fun urlFromMinecraft(url: String): Url? {
-    return try {
-        Url(ensureHttp(url))
-    } catch (_: URLParserException) {
-        null
-    }
+fun String.ensureEndsWith(suffix: String, ignoreCase: Boolean = false): String {
+    return if (endsWith(suffix, ignoreCase)) this else "$this$suffix"
 }
-
 
 private val ipParams = IPAddressStringParameters.Builder().apply {
     allowEmpty(false)

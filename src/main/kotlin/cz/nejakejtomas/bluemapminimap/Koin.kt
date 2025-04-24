@@ -2,13 +2,8 @@ package cz.nejakejtomas.bluemapminimap
 
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import cz.nejakejtomas.bluemapminimap.client.MapClient
-import cz.nejakejtomas.bluemapminimap.client.MapClientImpl
-import cz.nejakejtomas.bluemapminimap.client.ServerClient
-import cz.nejakejtomas.bluemapminimap.client.ServerClientImpl
+import cz.nejakejtomas.bluemapminimap.client.map.MapApiClient
 import cz.nejakejtomas.bluemapminimap.config.DebugConfig
-import cz.nejakejtomas.bluemapminimap.config.ServerDefaults
-import cz.nejakejtomas.bluemapminimap.config.WorldDefaults
 import cz.nejakejtomas.bluemapminimap.dbs.AppDatabase
 import cz.nejakejtomas.bluemapminimap.dbs.dao.ServerDao
 import cz.nejakejtomas.bluemapminimap.dbs.dao.WorldDao
@@ -20,19 +15,20 @@ import cz.nejakejtomas.bluemapminimap.render.*
 import cz.nejakejtomas.bluemapminimap.repository.MinecraftRepository
 import cz.nejakejtomas.bluemapminimap.screen.minimap.MinimapViewModel
 import cz.nejakejtomas.bluemapminimap.usecase.mapname.GetSavedMapNameUseCase
-import cz.nejakejtomas.bluemapminimap.usecase.mapname.GetSavedOrDefaultMapNameUseCase
-import cz.nejakejtomas.bluemapminimap.usecase.mapname.SetMapNameUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.mapname.GetSavedOrGuessMapNameUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.mapname.GuessMapNameUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.mapname.SaveMapNameUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.maproot.GetMapRootUseCase
 import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedMapUrlUseCase
-import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedOrDefaultMapUrlUseCase
-import cz.nejakejtomas.bluemapminimap.usecase.mapurl.SetMapUrlUseCase
-import io.ktor.http.*
+import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedOrGuessMapUrlUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GuessMapUrlUseCase
+import cz.nejakejtomas.bluemapminimap.usecase.mapurl.SaveMapUrlUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.minecraft.client.Minecraft
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 val module = module {
@@ -66,39 +62,37 @@ val module = module {
 
 
     // UseCases
-    singleOf(::GetSavedMapNameUseCase)
-    singleOf(::GetSavedOrDefaultMapNameUseCase)
-    singleOf(::SetMapNameUseCase)
+    // Map url
     singleOf(::GetSavedMapUrlUseCase)
-    singleOf(::GetSavedOrDefaultMapUrlUseCase)
-    singleOf(::SetMapUrlUseCase)
+    singleOf(::GuessMapUrlUseCase)
+    singleOf(::GetSavedOrGuessMapUrlUseCase)
+    singleOf(::SaveMapUrlUseCase)
 
+    // Map name
+    singleOf(::GetSavedMapNameUseCase)
+    singleOf(::GuessMapNameUseCase)
+    singleOf(::GetSavedOrGuessMapNameUseCase)
+    singleOf(::SaveMapNameUseCase)
 
+    // Map root
+    singleOf(::GetMapRootUseCase)
 
     single<CoroutineDispatcher>(TickDispatcher.Companion) { TickDispatcher() }
     single<CoroutineDispatcher>(GuiRenderDispatcher.Companion) { GuiRenderDispatcher() }
-    factory<MapClient> { (mapUrl: Url?, mapName: String) ->
-        MapClientImpl(mapUrl, mapName)
+
+    single<TileMapFactory> {
+        TileMapFactory { settings: TileMapSettings, mapApiClient: MapApiClient, coroutineScope: CoroutineScope ->
+            TileMapImpl(
+                minecraft = get(),
+                settings = settings,
+                coroutineScope = coroutineScope,
+                renderDispatcher = get(GuiRenderDispatcher.Companion),
+                mapApiClient = mapApiClient,
+                debugConfig = get()
+            )
+        }
     }
 
-    single<ServerClient> {
-        ServerClientImpl(get())
-    }
-
-    factory<TileMap> { (settings: TileMapSettings, coroutineScope: CoroutineScope, mapUrl: Url?, mapName: String) ->
-        TileMapImpl(
-            get(),
-            settings,
-            coroutineScope,
-            get(GuiRenderDispatcher.Companion),
-            get(TickDispatcher.Companion),
-            get { parametersOf(mapUrl, mapName) },
-            get()
-        )
-    }
-
-    singleOf(::ServerDefaults)
-    singleOf(::WorldDefaults)
     singleOf(::DebugConfig)
-    single<GuiRenderable> { Minimap(get(), get()) }
+    single<GuiRenderable> { Minimap(get(), get(), get(), get()) }
 }

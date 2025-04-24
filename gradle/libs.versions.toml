@@ -21,6 +21,7 @@ compose-library = "0.0.+"
 androidx-navigation = "2.9.0-alpha16"
 compose-plugin = "1.8.0-beta02"
 compose = "2025.04.00"
+ktorfit = "2.5.1"
 
 [libraries]
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
@@ -34,9 +35,8 @@ kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutin
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-jvm = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core-jvm", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
-ktor-client-core = { group = "io.ktor", name = "ktor-client-core-jvm", version.ref = "ktor" }
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio-jvm", version.ref = "ktor" }
 ktor-client-contentnegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 renderer = { group = "io.github.0x3c50.renderer", name = "renderer-fabric", version.ref = "renderer" }
 modmenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modmenu" }
@@ -49,6 +49,7 @@ lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "life
 compose-library = { group = "cz.nejakejtomas", name = "ComposeLibrary", version.ref = "compose-library" }
 navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "androidx-navigation" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose" }
+ktorfit = { group = "de.jensklingenberg.ktorfit", name = "ktorfit-lib", version.ref = "ktorfit" }
 
 
 [plugins]
@@ -59,3 +60,4 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }

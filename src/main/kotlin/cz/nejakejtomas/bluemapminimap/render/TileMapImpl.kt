@@ -2,7 +2,8 @@ package cz.nejakejtomas.bluemapminimap.render
 
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.systems.RenderSystem
-import cz.nejakejtomas.bluemapminimap.client.MapClient
+import cz.nejakejtomas.bluemapminimap.client.map.MapApiClient
+import cz.nejakejtomas.bluemapminimap.client.map.MapSettings
 import cz.nejakejtomas.bluemapminimap.common.Size
 import cz.nejakejtomas.bluemapminimap.config.DebugConfig
 import cz.nejakejtomas.bluemapminimap.uniqueResourceLocation
@@ -24,8 +25,7 @@ class TileMapImpl(
     private val settings: TileMapSettings,
     private val coroutineScope: CoroutineScope,
     private val renderDispatcher: CoroutineDispatcher,
-    private val tickDispatcher: CoroutineDispatcher,
-    private val mapClient: MapClient,
+    private val mapApiClient: MapApiClient,
     private val debugConfig: DebugConfig,
 ) : TileMap {
 
@@ -39,7 +39,8 @@ class TileMapImpl(
 
     init {
         coroutineScope.launch(Dispatchers.IO) {
-            val size = mapClient.tileSize() ?: return@launch
+            val settings = mapApiClient.settings().fold(onSuccess = { it }, onFailure = { return@launch })
+            val size = settings.tileSize
 
             val tilesSize = calculateTilesSize(size)
             val newTiles = Array(tilesSize.width) { Array<ResourceLocation?>(tilesSize.height) { null } }
@@ -233,11 +234,12 @@ class TileMapImpl(
 
                 coroutineScope.launch(Dispatchers.IO) {
                     // +1 to offset the render border
-                    val tile = mapClient.tileAt(
+                    mapApiClient.tileAt(
                         (tileX + x - tiles.tilesSize.width / 2),
                         (tileZ + z - tiles.tilesSize.height / 2),
-                    ) ?: return@launch
-                    placeTile(tile, tileX + x, tileZ + z)
+                    ).onSuccess {
+                        placeTile(it, tileX + x, tileZ + z)
+                    }
                 }
             }
         }
@@ -260,3 +262,6 @@ class TileMapImpl(
         private const val TILE_RENDER_BORDER_BUFFER_SIZE = 1
     }
 }
+
+private val MapSettings.tileSize
+    get() = Size(tilesSettings.width, tilesSettings.height)

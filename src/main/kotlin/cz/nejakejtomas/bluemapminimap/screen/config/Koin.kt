@@ -5,7 +5,7 @@ import cz.nejakejtomas.bluemapminimap.screen.config.servers.ServersViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-val configKoin = module {
+val configModule = module {
     viewModelOf(::GeneralViewModel)
     viewModelOf(::ServersViewModel)
 }

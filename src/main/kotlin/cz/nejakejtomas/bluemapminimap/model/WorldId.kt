@@ -1,3 +1,5 @@
 package cz.nejakejtomas.bluemapminimap.model
 
-data class WorldId(val dimension: String)
+// Minecraft dimension of world
+@JvmInline
+value class WorldId(val dimension: String)

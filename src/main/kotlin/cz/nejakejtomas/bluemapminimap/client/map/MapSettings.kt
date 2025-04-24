@@ -1,4 +1,4 @@
-package cz.nejakejtomas.bluemapminimap.client
+package cz.nejakejtomas.bluemapminimap.client.map
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,7 +7,6 @@ import kotlinx.serialization.Serializable
 data class MapSettings(@SerialName("lowres") val tilesSettings: TilesSettings) {
     @Serializable
     data class TilesSettings(@SerialName("tileSize") private val tileSize: List<Int>) {
-
         val width
             get() = tileSize[0]
         val height

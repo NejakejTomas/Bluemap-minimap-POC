@@ -1,8 +1,10 @@
 package cz.nejakejtomas.bluemapminimap.screen.minimap
 
-import io.ktor.http.*
+import cz.nejakejtomas.bluemapminimap.model.MapDimensionId
+import cz.nejakejtomas.bluemapminimap.model.MapId
 
 data class MinimapUiState(
-    val mapUrl: Url? = null,
-    val mapName: String? = null,
+    val mapId: MapId? = null,
+    val mapRoot: String? = null,
+    val mapDimensionId: MapDimensionId? = null,
 )

@@ -10,6 +10,7 @@ plugins {
     id("androidx.room") version "2.7.0"
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ktorfit)
 }
 
 loom {
@@ -77,9 +78,8 @@ dependencies {
     shadow(libs.kotlinx.coroutines)
     shadow(libs.kotlinx.serialization.json)
 
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.contentnegotiation)
+    implementation(libs.ktor.client.logging)
     implementation(libs.ktor.serialization.json)
 
     modImplementation(libs.renderer)
@@ -104,6 +104,9 @@ dependencies {
     implementation(compose.components.resources)
     implementation(libs.navigation)
     implementation(project.dependencies.platform(libs.compose.bom))
+
+    // Ktorfit
+    implementation(libs.ktorfit)
 }
 
 compose.resources {

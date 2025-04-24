@@ -5,10 +5,11 @@ import cz.nejakejtomas.bluemapminimap.model.MapDimensionId
 import cz.nejakejtomas.bluemapminimap.model.ServerId
 import cz.nejakejtomas.bluemapminimap.model.WorldId
 
-class GetSavedMapNameUseCase(
-    private val wordRepository: WorldRepository,
+class GetSavedOrGuessMapNameUseCase(
+    private val worldRepository: WorldRepository,
+    private val guessMapNameUseCase: GuessMapNameUseCase,
 ) {
     suspend operator fun invoke(serverId: ServerId, worldId: WorldId): MapDimensionId? {
-        return wordRepository.getMapName(serverId, worldId)
+        return worldRepository.getMapName(serverId, worldId) ?: guessMapNameUseCase(serverId, worldId)
     }
 }

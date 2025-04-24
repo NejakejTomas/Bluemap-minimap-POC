@@ -3,6 +3,7 @@ package cz.nejakejtomas.bluemapminimap.render
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import cz.nejakejtomas.bluemapminimap.client.map.MapApiFactory
 import cz.nejakejtomas.bluemapminimap.common.Size
 import cz.nejakejtomas.bluemapminimap.config.DebugConfig
 import cz.nejakejtomas.bluemapminimap.screen.minimap.MinimapViewModel
@@ -15,8 +16,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import org.koin.core.annotation.KoinInternalApi
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.parameter.parametersOf
 import org.koin.mp.KoinPlatformTools
 import org.koin.viewmodel.defaultExtras
 import org.koin.viewmodel.resolveViewModel
@@ -26,7 +25,9 @@ import java.awt.Color
 class Minimap(
     // TODO: Get rid of
     private val minecraft: Minecraft,
-    private val debugConfig: DebugConfig
+    private val debugConfig: DebugConfig,
+    private val tileMapFactory: TileMapFactory,
+    private val mapApiFactory: MapApiFactory,
 ) :
     GuiRenderable, ViewModelStoreOwner, KoinComponent {
     private val size = Size(750, 750)
@@ -48,17 +49,15 @@ class Minimap(
     )
 
     private val tileMap = minimapViewModel.uiState.map { state ->
-        if (state.mapUrl == null) return@map null
-        if (state.mapName == null) return@map null
+        if (state.mapId?.mapUrl == null) return@map null
+        if (state.mapDimensionId?.mapName == null) return@map null
+        if (state.mapRoot == null) return@map null
 
-        get<TileMap> {
-            parametersOf(
-                TileMapSettings(true, size),
-                coroutineScope,
-                state.mapUrl,
-                state.mapName,
-            )
-        }
+        tileMapFactory.invoke(
+            TileMapSettings(true, size),
+            mapApiFactory(state.mapId, state.mapRoot, state.mapDimensionId),
+            coroutineScope
+        )
     }.stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
     init {
