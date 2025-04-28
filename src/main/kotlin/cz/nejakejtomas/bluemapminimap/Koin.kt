@@ -3,10 +3,11 @@ package cz.nejakejtomas.bluemapminimap
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cz.nejakejtomas.bluemapminimap.client.map.MapApiClient
-import cz.nejakejtomas.bluemapminimap.config.DebugConfig
 import cz.nejakejtomas.bluemapminimap.dbs.AppDatabase
+import cz.nejakejtomas.bluemapminimap.dbs.dao.MinimapSettingsDao
 import cz.nejakejtomas.bluemapminimap.dbs.dao.ServerDao
 import cz.nejakejtomas.bluemapminimap.dbs.dao.WorldDao
+import cz.nejakejtomas.bluemapminimap.dbs.repository.MinimapSettingsRepository
 import cz.nejakejtomas.bluemapminimap.dbs.repository.ServerRepository
 import cz.nejakejtomas.bluemapminimap.dbs.repository.WorldRepository
 import cz.nejakejtomas.bluemapminimap.mc.GuiRenderDispatcher
@@ -23,6 +24,7 @@ import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedMapUrlUseCase
 import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedOrGuessMapUrlUseCase
 import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GuessMapUrlUseCase
 import cz.nejakejtomas.bluemapminimap.usecase.mapurl.SaveMapUrlUseCase
+import io.ktor.util.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,19 +44,21 @@ val module = module {
     singleOf(::MinecraftRepository)
     singleOf(::ServerRepository)
     singleOf(::WorldRepository)
+    singleOf(::MinimapSettingsRepository)
 
     // Database
     single {
         Room.databaseBuilder<AppDatabase>(
-            AppDatabase::class.java.simpleName
-        ).apply {
+            ModFolder.combineSafe(AppDatabase::class.java.simpleName).absolutePath,
+        ).run {
             setDriver(BundledSQLiteDriver())
             setQueryCoroutineContext(Dispatchers.IO)
+            build()
         }
-            .build()
     }
     single<ServerDao> { get<AppDatabase>().serverDao() }
     single<WorldDao> { get<AppDatabase>().worldDao() }
+    single<MinimapSettingsDao> { get<AppDatabase>().minimapSettingsDao() }
 
 
     // ViewModels
@@ -88,11 +92,9 @@ val module = module {
                 coroutineScope = coroutineScope,
                 renderDispatcher = get(GuiRenderDispatcher.Companion),
                 mapApiClient = mapApiClient,
-                debugConfig = get()
             )
         }
     }
 
-    singleOf(::DebugConfig)
-    single<GuiRenderable> { Minimap(get(), get(), get(), get()) }
+    single<GuiRenderable> { Minimap(get(), get(), get()) }
 }

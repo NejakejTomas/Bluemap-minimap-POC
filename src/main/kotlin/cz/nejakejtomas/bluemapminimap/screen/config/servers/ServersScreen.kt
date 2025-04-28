@@ -1,5 +1,7 @@
 package cz.nejakejtomas.bluemapminimap.screen.config.servers
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import cz.nejakejtomas.bluemapminimap.screen.config.Screen
 import cz.nejakejtomas.bluemapminimap.screen.config.TopAppBar
 import cz.nejakejtomas.bluemapminimap.screen.config.TopScreen
 import cz.nejakejtomas.minimap.resources.Res
@@ -21,7 +24,11 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 private fun ServerEntry(modifier: Modifier = Modifier, server: ServersUiState.Server) {
-    Text("IP: ${server.id.url}, map url: ${server.mapUrl}", modifier)
+    Column(modifier) {
+        Text("IP: ${server.serverUrl}")
+        Text("Saved map url: ${server.savedMapUrl}")
+        Text("Map url hint: ${server.mapUrlHint}")
+    }
 }
 
 @Composable
@@ -48,7 +55,12 @@ fun ServersScreen(
 
                 uiState.currentServer?.let { server ->
                     item { Text(stringResource(Res.string.config_servers_screen_currentServer)) }
-                    item { ServerEntry(modifier, server) }
+                    item {
+                        ServerEntry(
+                            Modifier.clickable { navController.navigate(Screen.Server(server.serverId)) },
+                            server
+                        )
+                    }
                 }
 
                 if (uiState.allServers.isNotEmpty()) {

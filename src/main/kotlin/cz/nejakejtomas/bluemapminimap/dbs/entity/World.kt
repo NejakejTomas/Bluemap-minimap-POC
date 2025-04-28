@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    "world",
+    tableName = "world",
     indices = [Index(value = ["serverId"]), Index(value = ["dimension", "serverId"], unique = true)],
     foreignKeys = [ForeignKey(
         entity = Server::class,

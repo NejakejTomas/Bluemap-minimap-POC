@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(indices = [Index(value = ["url"], unique = true)])
+@Entity(tableName = "server", indices = [Index(value = ["url"], unique = true)])
 data class Server(
     @PrimaryKey(autoGenerate = true)
     val id: Long,

@@ -8,8 +8,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import cz.nejakejtomas.minimap.resources.Res
-import cz.nejakejtomas.minimap.resources.config_general_screen_navigation_title
-import cz.nejakejtomas.minimap.resources.config_general_screen_title
+import cz.nejakejtomas.minimap.resources.config_minimap_screen_navigation_title
+import cz.nejakejtomas.minimap.resources.config_minimap_screen_title
 import cz.nejakejtomas.minimap.resources.config_servers_screen_navigation_title
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -19,9 +19,9 @@ enum class BottomBarEntry(
     private val string: StringResource,
     private val iconVector: ImageVector,
 ) {
-    General(
+    Minimap(
         Screen.General,
-        Res.string.config_general_screen_navigation_title,
+        Res.string.config_minimap_screen_navigation_title,
         Icons.Default.Home,
     ),
     Servers(
@@ -37,7 +37,7 @@ enum class BottomBarEntry(
     val icon: @Composable () -> Unit = {
         Icon(
             iconVector,
-            contentDescription = stringResource(Res.string.config_general_screen_title)
+            contentDescription = stringResource(Res.string.config_minimap_screen_title)
         )
     }
 }

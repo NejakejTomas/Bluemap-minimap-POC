@@ -19,7 +19,7 @@ ksp = "2.1.20-1.0.32"
 androidx-lifecycle = "2.8.4"
 compose-library = "0.0.+"
 androidx-navigation = "2.9.0-alpha16"
-compose-plugin = "1.8.0-beta02"
+compose-plugin = "1.8.0-rc01"
 compose = "2025.04.00"
 ktorfit = "2.5.1"
 

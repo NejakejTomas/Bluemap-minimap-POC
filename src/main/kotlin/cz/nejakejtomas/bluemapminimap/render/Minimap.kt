@@ -1,11 +1,9 @@
 package cz.nejakejtomas.bluemapminimap.render
 
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import cz.nejakejtomas.bluemapminimap.client.map.MapApiFactory
 import cz.nejakejtomas.bluemapminimap.common.Size
-import cz.nejakejtomas.bluemapminimap.config.DebugConfig
 import cz.nejakejtomas.bluemapminimap.screen.minimap.MinimapViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,18 +23,14 @@ import java.awt.Color
 class Minimap(
     // TODO: Get rid of
     private val minecraft: Minecraft,
-    private val debugConfig: DebugConfig,
     private val tileMapFactory: TileMapFactory,
     private val mapApiFactory: MapApiFactory,
-) :
-    GuiRenderable, ViewModelStoreOwner, KoinComponent {
-    private val size = Size(750, 750)
+) : GuiRenderable, ViewModelStoreOwner, KoinComponent {
 
     // TODO: CoroutineScope for each combination of map/server?
     private val coroutineScope: CoroutineScope = GlobalScope
 
     override val viewModelStore = ViewModelStore()
-    private val viewModelProvider = ViewModelProvider.create(this)
 
     private val minimapViewModel = resolveViewModel(
         MinimapViewModel::class,
@@ -54,10 +48,10 @@ class Minimap(
         if (state.mapRoot == null) return@map null
 
         tileMapFactory.invoke(
-            TileMapSettings(true, size),
+            TileMapSettings(state.doRotate, state.debugRender, state.targetBlockSize),
             mapApiFactory(state.mapId, state.mapRoot, state.mapDimensionId),
             coroutineScope
-        )
+        ) to state
     }.stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
     init {
@@ -71,13 +65,13 @@ class Minimap(
     }
 
     override fun render(graphics: GuiGraphics) {
-        val tileMap = tileMap.value ?: return
+        val (tileMap, uiState) = tileMap.value ?: return
         val player = minecraft.player ?: return
 
         val screenSize = Size(75.0f, 75.0f)
 
-        val scaleWidth = screenSize.width / size.width
-        val scaleHeight = screenSize.height / size.height
+        val scaleWidth = screenSize.width / uiState.targetBlockSize.width
+        val scaleHeight = screenSize.height / uiState.targetBlockSize.height
 
         graphics.pose().withPose {
             // Offset map from top and left
@@ -91,7 +85,7 @@ class Minimap(
                 tileMap.render(graphics, player.x, player.z, player.yRot)
             }
 
-            if (debugConfig.config.value.debugRender) {
+            if (uiState.debugRender) {
                 ExtendedDrawContext.drawLine(
                     graphics,
                     0.0f,
@@ -111,7 +105,6 @@ class Minimap(
                     me.x150.renderer.util.Color(Color.green)
                 )
             }
-//            }
         }
 
 

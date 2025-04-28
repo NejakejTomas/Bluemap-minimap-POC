@@ -4,19 +4,12 @@ import cz.nejakejtomas.bluemapminimap.client.server.ServerApiFactory
 import cz.nejakejtomas.bluemapminimap.model.MapDimensionId
 import cz.nejakejtomas.bluemapminimap.model.ServerId
 import cz.nejakejtomas.bluemapminimap.model.WorldId
-import cz.nejakejtomas.bluemapminimap.runSuspendCatching
 import cz.nejakejtomas.bluemapminimap.usecase.mapurl.GetSavedOrGuessMapUrlUseCase
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 
 // Assumes correct map url, returns string - map name
 class GuessMapNameUseCase(
-    private val httpClient: HttpClient,
     private val serverApiFactory: ServerApiFactory,
     private val getSavedOrGuessMapUrlUseCase: GetSavedOrGuessMapUrlUseCase,
 ) {
@@ -29,27 +22,14 @@ class GuessMapNameUseCase(
         val name = worldId.dimension.process(DIMENSION_DELIMITERS).toSet()
         val availableMaps = settings.maps.map { it.process(MAPS_DELIMITERS).toSet() to it }
 
-        val bestMaps = availableMaps.map { map ->
+        val bestMap = availableMaps.map { map ->
             val totalWordCount = name.union(map.first).size
             val sameWordCount = name.intersect(map.first).size
 
             totalWordCount - sameWordCount to map.second
-        }.sortedBy { it.first }.map { it.second }
+        }.sortedBy { it.first }.map { it.second }.firstOrNull()?.let { MapDimensionId(it) }
 
-        bestMaps.mapNotNull { map ->
-            val url = runCatching {
-                URLBuilder(mapId.mapUrl).apply { path(settings.dataRoot, map) }.build()
-            }.getOrNull() ?: return@mapNotNull null
-
-            async {
-                // Sadly Bluemap returns HTTP 400 bad request when HEAD is used, so we have to use GET
-                runSuspendCatching {
-                    val response = httpClient.get(url)
-                    if (response.status.isSuccess()) MapDimensionId(map)
-                    else null
-                }.getOrNull()
-            }
-        }.awaitAll().firstOrNull { it != null }
+        return@withContext bestMap
     }
 
     companion object {

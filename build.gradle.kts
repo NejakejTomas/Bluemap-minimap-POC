@@ -57,6 +57,7 @@ repositories {
 }
 
 dependencies {
+    // Fixme: shadow
     minecraft(libs.minecraft)
     mappings(loom.officialMojangMappings())
     modImplementation(libs.fabric.loader)
@@ -101,9 +102,11 @@ dependencies {
     implementation(compose.runtime)
     implementation(compose.material3)
     implementation(compose.material3AdaptiveNavigationSuite)
+    implementation(compose.materialIconsExtended)
     implementation(compose.components.resources)
     implementation(libs.navigation)
     implementation(project.dependencies.platform(libs.compose.bom))
+    modImplementation("cz.nejakejtomas:MCComposeLibrary:0.0.+")
 
     // Ktorfit
     implementation(libs.ktorfit)

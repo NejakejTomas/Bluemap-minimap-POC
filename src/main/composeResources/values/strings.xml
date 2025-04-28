@@ -2,11 +2,16 @@
     <string name="config_title">Minimap config</string>
     <string name="config_title_back">Back</string>
 
-    <string name="config_general_screen_title">General</string>
-    <string name="config_general_screen_navigation_title">General</string>
+    <string name="config_minimap_screen_title">Minimap</string>
+    <string name="config_minimap_screen_navigation_title">Minimap</string>
+    <string name="config_minimap_screen_doRotate">Rotate minimap</string>
+    <string name="config_minimap_screen_sizeInBlocks">Minimap size (in blocks)</string>
+    <string name="config_minimap_screen_debugRender">Debug render</string>
 
     <string name="config_servers_screen_title">Servers</string>
     <string name="config_servers_screen_navigation_title">Servers</string>
     <string name="config_servers_screen_currentServer">Currently connected</string>
     <string name="config_servers_screen_allServers">All saved servers</string>
+
+    <string name="config_server_screen_title">Server</string>
 </resources>

@@ -8,6 +8,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
 import net.minecraft.resources.ResourceLocation
+import java.io.File
 import java.net.MalformedURLException
 import java.net.URISyntaxException
 import java.net.URL
@@ -15,6 +16,12 @@ import java.net.URL
 fun ensureHttp(url: String): String {
     return if (url.startsWith("http://") || url.startsWith("https://")) url
     else "http://$url"
+}
+
+val ModFolder by lazy {
+    File("BluemapMinimapData").apply {
+        mkdirs()
+    }
 }
 
 fun String.ensureEndsWith(suffix: String, ignoreCase: Boolean = false): String {

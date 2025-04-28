@@ -5,7 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import cz.nejakejtomas.bluemapminimap.screen.config.general.GeneralScreen
+import androidx.navigation.toRoute
+import cz.nejakejtomas.bluemapminimap.screen.config.general.MinimapSettingsScreen
+import cz.nejakejtomas.bluemapminimap.screen.config.server.ServerScreen
 import cz.nejakejtomas.bluemapminimap.screen.config.servers.ServersScreen
 
 @Composable
@@ -20,11 +22,16 @@ fun NavHost(
         startDestination = startDestination,
     ) {
         composable<Screen.General> {
-            GeneralScreen(navController)
+            MinimapSettingsScreen(navController)
         }
 
         composable<Screen.Servers> {
             ServersScreen(navController)
+        }
+
+        composable<Screen.Server>(typeMap) {
+            val route = it.toRoute<Screen.Server>()
+            ServerScreen(route.serverId, navController)
         }
     }
 }

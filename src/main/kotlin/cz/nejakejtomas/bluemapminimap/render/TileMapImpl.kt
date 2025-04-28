@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem
 import cz.nejakejtomas.bluemapminimap.client.map.MapApiClient
 import cz.nejakejtomas.bluemapminimap.client.map.MapSettings
 import cz.nejakejtomas.bluemapminimap.common.Size
-import cz.nejakejtomas.bluemapminimap.config.DebugConfig
 import cz.nejakejtomas.bluemapminimap.uniqueResourceLocation
 import kotlinx.coroutines.*
 import net.minecraft.client.Minecraft
@@ -13,6 +12,7 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
+import org.joml.Quaternionf
 import org.lwjgl.BufferUtils
 import java.awt.Color
 import java.awt.image.BufferedImage
@@ -26,7 +26,6 @@ class TileMapImpl(
     private val coroutineScope: CoroutineScope,
     private val renderDispatcher: CoroutineDispatcher,
     private val mapApiClient: MapApiClient,
-    private val debugConfig: DebugConfig,
 ) : TileMap {
 
     private class Tiles(
@@ -156,16 +155,19 @@ class TileMapImpl(
 
             translate(-playerTileOffsetX, -playerTileOffsetZ, 0.0)
 
-//        rotation?.also {
-//            pose.rotateAround(
-//                Quaternionf().apply {
-//                    rotateZ(-Math.toRadians((it.toDouble() + 180)).toFloat())
-//                },
-//                (tiles.tileSize.width * (tiles.tilesSize.width / 2 - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) + playerTileOffsetX).toFloat(),
-//                (tiles.tileSize.height * (tiles.tilesSize.height / 2 - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) + playerTileOffsetZ).toFloat(),
-//                0f,
-//            )
-//        }
+            // TODO: brokes with smaller map sizes
+            if (settings.doRotate) {
+                rotation?.also {
+                    rotateAround(
+                        Quaternionf().apply {
+                            rotateZ(-Math.toRadians((it.toDouble() + 180)).toFloat())
+                        },
+                        (tiles.tileSize.width * (tiles.tilesSize.width / 2 - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) + playerTileOffsetX).toFloat(),
+                        (tiles.tileSize.height * (tiles.tilesSize.height / 2 - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) + playerTileOffsetZ).toFloat(),
+                        0f,
+                    )
+                }
+            }
 
             for (x in TILE_DOWNLOAD_BORDER_BUFFER_SIZE until tiles.tilesSize.width - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) {
                 for (z in TILE_DOWNLOAD_BORDER_BUFFER_SIZE until tiles.tilesSize.height - TILE_DOWNLOAD_BORDER_BUFFER_SIZE) {
@@ -188,7 +190,7 @@ class TileMapImpl(
                             tiles.tileSize.height,
                         )
                     }
-                    if (debugConfig.config.value.debugRender) {
+                    if (settings.debugRender) {
                         guiGraphics.fill(
                             (offsetX * tiles.tileSize.width),
                             (offsetZ * tiles.tileSize.height),

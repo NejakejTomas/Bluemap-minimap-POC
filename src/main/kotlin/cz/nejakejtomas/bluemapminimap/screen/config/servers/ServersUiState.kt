@@ -7,8 +7,10 @@ data class ServersUiState(
     val allServers: List<ServersUiState> = listOf(),
 ) {
     data class Server(
-        val id: ServerId,
-        val mapUrl: String,
+        val serverId: ServerId,
+        val serverUrl: String,
+        val savedMapUrl: String,
+        val mapUrlHint: String,
         // TODO
 //        val name: String,
     )
