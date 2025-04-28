@@ -8,6 +8,7 @@ import cz.nejakejtomas.bluemapminimap.common.Size
 data class MinimapSettings(
     @PrimaryKey(autoGenerate = false)
     val id: Long = 42,
+    val enabled: Boolean = true,
     val doRotate: Boolean = false,
     val targetBlockSize: Size<Int> = Size(750, 750),
     val debugRender: Boolean = false,

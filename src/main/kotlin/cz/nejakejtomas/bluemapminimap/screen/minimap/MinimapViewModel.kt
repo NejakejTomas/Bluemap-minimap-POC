@@ -19,11 +19,6 @@ class MinimapViewModel(
     private val getSavedOrGuessMapNameUseCase: GetSavedOrGuessMapNameUseCase,
     private val getMapRootUseCase: GetMapRootUseCase,
 ) : ViewModel() {
-//    private val job = Job()
-//    private val viewModelScope = CoroutineScope(job + Dispatchers.Default)
-
-//    private val s = CoroutineScope(viewModelScope.coroutineContext + SupervisorJob() + Dispatchers.Default)
-
     private val _uiState = MutableStateFlow(MinimapUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -40,6 +35,7 @@ class MinimapViewModel(
             minimapSettingsRepository.select().collect { settings ->
                 _uiState.update {
                     it.copy(
+                        enabled = settings.enabled,
                         doRotate = settings.doRotate,
                         debugRender = settings.debugRender,
                         targetBlockSize = settings.targetBlockSize
@@ -49,7 +45,7 @@ class MinimapViewModel(
         }
     }
 
-    private suspend fun resolveMapApiParameters(server: ServerId, world: WorldId): Unit {
+    private suspend fun resolveMapApiParameters(server: ServerId, world: WorldId) {
         val mapUrl = getSavedOrGuessMapUrlUseCase(server)
         val mapName = getSavedOrGuessMapNameUseCase(server, world)
         val mapRoot = getMapRootUseCase(server)

@@ -67,6 +67,7 @@ class Minimap(
     override fun render(graphics: GuiGraphics) {
         val (tileMap, uiState) = tileMap.value ?: return
         val player = minecraft.player ?: return
+        if (!uiState.enabled) return
 
         val screenSize = Size(75.0f, 75.0f)
 

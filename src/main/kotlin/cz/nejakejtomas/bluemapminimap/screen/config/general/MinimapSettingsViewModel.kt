@@ -33,6 +33,10 @@ class MinimapSettingsViewModel(
         _uiState.update { it.copy(doRotate = value) }
     }
 
+    fun enabledChanged(value: Boolean) {
+        _uiState.update { it.copy(enabled = value) }
+    }
+
     fun blockSizeChanged(value: String) {
         val isError = value.toIntOrNull() == null
 
@@ -45,6 +49,7 @@ class MinimapSettingsViewModel(
     }
 
     private fun MinimapSettings.toUiState() = MinimapSettingsUiState(
+        enabled = enabled,
         doRotate = doRotate,
         debugRender = debugRender,
         targetSizeBlocks = targetBlockSize.width.toString(),
@@ -55,6 +60,7 @@ class MinimapSettingsViewModel(
         val blockSize = state.targetSizeBlocks.toIntOrNull()
         minimapSettingsRepository.update {
             it.copy(
+                enabled = state.enabled,
                 doRotate = state.doRotate,
                 debugRender = state.debugRender,
                 targetBlockSize = blockSize?.let { s -> Size(s, s) } ?: it.targetBlockSize

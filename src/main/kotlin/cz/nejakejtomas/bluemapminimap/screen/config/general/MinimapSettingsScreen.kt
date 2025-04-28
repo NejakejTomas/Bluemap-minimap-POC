@@ -45,6 +45,19 @@ private fun DoRotate(
 }
 
 @Composable
+private fun Enabled(
+    value: Boolean,
+    onValueChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(Res.string.config_minimap_screen_enabled))
+        Spacer(Modifier.weight(1f))
+        Switch(value, onValueChange)
+    }
+}
+
+@Composable
 private fun BlockSize(
     value: String,
     onValueChange: (String) -> Unit,
@@ -85,9 +98,10 @@ fun MinimapSettingsScreen(
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
             Column(Modifier.padding(innerPadding).fillMaxWidth().verticalScroll(rememberScrollState())) {
-                DebugRenderer(uiState.debugRender, viewModel::debugRenderChanged)
+                Enabled(uiState.enabled, viewModel::enabledChanged)
                 DoRotate(uiState.doRotate, viewModel::doRotateChanged)
                 BlockSize(uiState.targetSizeBlocks, viewModel::blockSizeChanged, uiState.targetSizeBlocksError)
+                DebugRenderer(uiState.debugRender, viewModel::debugRenderChanged)
             }
         }
     }
